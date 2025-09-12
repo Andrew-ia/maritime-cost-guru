@@ -13,6 +13,16 @@ export default {
       },
     },
     extend: {
+      backgroundImage: {
+        'gradient-maritime': 'var(--gradient-maritime)',
+        'gradient-ocean': 'var(--gradient-ocean)',
+        'gradient-subtle': 'var(--gradient-subtle)',
+      },
+      boxShadow: {
+        'card': 'var(--shadow-card)',
+        'elegant': 'var(--shadow-elegant)',
+        'glow': 'var(--shadow-glow)',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -46,6 +56,24 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        maritime: {
+          deep: "hsl(var(--maritime-deep))",
+          medium: "hsl(var(--maritime-medium))", 
+          light: "hsl(var(--maritime-light))",
+          accent: "hsl(var(--maritime-accent))",
+        },
+        financial: {
+          green: "hsl(var(--financial-green))",
+          red: "hsl(var(--financial-red))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

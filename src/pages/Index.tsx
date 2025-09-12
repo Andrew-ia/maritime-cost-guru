@@ -1,11 +1,172 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Ship, Calculator, TrendingUp } from "lucide-react";
+import { FormularioImportacao } from "@/components/FormularioImportacao";
+import { ResultadosCalculos } from "@/components/ResultadosCalculos";
+import { Card, CardContent } from "@/components/ui/card";
+
+export interface DadosImportacao {
+  cotacao_usd: number;
+  valor_fob: number;
+  frete_internacional: number;
+  seguro_internacional: number;
+  capatazias: number;
+  aliq_ii: number;
+  aliq_ipi: number;
+  aliq_pis: number;
+  aliq_cofins: number;
+  aliq_icms: number;
+  taxa_siscomex: number;
+  adicional_marinha: number;
+  despesas_locais: Array<{
+    descricao: string;
+    valor: number;
+    moeda: 'BRL' | 'USD';
+  }>;
+  honorarios: number;
+  sdas: number;
+  emissao_li: number;
+  taxa_expediente: number;
+}
+
+export interface ResultadosCalculados {
+  cif: number;
+  ii: number;
+  ipi: number;
+  pis: number;
+  cofins: number;
+  base_icms: number;
+  icms: number;
+  total_impostos: number;
+  total_despesas: number;
+  total_servicos: number;
+  total_custo_impostos: number;
+  custo_final: number;
+}
 
 const Index = () => {
+  const [dados, setDados] = useState<DadosImportacao | null>(null);
+  const [resultados, setResultados] = useState<ResultadosCalculados | null>(null);
+
+  const calcularImportacao = (dadosForm: DadosImportacao) => {
+    // 1. CIF
+    const cif = (dadosForm.valor_fob + dadosForm.frete_internacional + dadosForm.seguro_internacional) * dadosForm.cotacao_usd;
+    
+    // 2. II
+    const ii = cif * (dadosForm.aliq_ii / 100);
+    
+    // 3. IPI
+    const ipi = (cif + ii) * (dadosForm.aliq_ipi / 100);
+    
+    // 4. PIS
+    const pis = cif * (dadosForm.aliq_pis / 100);
+    
+    // 5. COFINS
+    const cofins = cif * (dadosForm.aliq_cofins / 100);
+    
+    // 6. Base ICMS
+    const base_icms = (cif + ii + ipi + pis + cofins + dadosForm.capatazias + dadosForm.taxa_siscomex + dadosForm.adicional_marinha) / (1 - dadosForm.aliq_icms/100);
+    
+    // 7. ICMS
+    const icms = base_icms * (dadosForm.aliq_icms / 100);
+    
+    // 8. TOTAL IMPOSTOS
+    const total_impostos = ii + ipi + pis + cofins + icms + dadosForm.taxa_siscomex + dadosForm.adicional_marinha;
+    
+    // 9. TOTAL DESPESAS
+    const total_despesas = dadosForm.despesas_locais.reduce((acc, despesa) => {
+      const valor = despesa.moeda === 'USD' ? despesa.valor * dadosForm.cotacao_usd : despesa.valor;
+      return acc + valor;
+    }, 0);
+    
+    // 10. TOTAL SERVIÇOS
+    const total_servicos = dadosForm.honorarios + dadosForm.sdas + dadosForm.emissao_li + dadosForm.taxa_expediente;
+    
+    // 11. TOTAL CUSTO IMPOSTOS
+    const total_custo_impostos = total_impostos + total_despesas + total_servicos;
+    
+    // 12. CUSTO FINAL
+    const custo_final = cif + total_custo_impostos;
+
+    const resultadosCalculados = {
+      cif,
+      ii,
+      ipi,
+      pis,
+      cofins,
+      base_icms,
+      icms,
+      total_impostos,
+      total_despesas,
+      total_servicos,
+      total_custo_impostos,
+      custo_final
+    };
+
+    setDados(dadosForm);
+    setResultados(resultadosCalculados);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-gradient-subtle">
+      {/* Header */}
+      <header className="bg-gradient-maritime shadow-elegant">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-12 h-12 bg-white/20 rounded-xl">
+              <Ship className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">Pré-Custo Importação Marítima</h1>
+              <p className="text-maritime-accent/90">Calcule todos os impostos e custos de importação</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Formulário */}
+          <div>
+            <Card className="shadow-card">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <Calculator className="w-5 h-5 text-primary" />
+                  <h2 className="text-xl font-semibold">Dados da Importação</h2>
+                </div>
+                <FormularioImportacao onCalcular={calcularImportacao} />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Resultados */}
+          <div>
+            {resultados ? (
+              <Card className="shadow-card">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 mb-6">
+                    <TrendingUp className="w-5 h-5 text-success" />
+                    <h2 className="text-xl font-semibold">Resultados Calculados</h2>
+                  </div>
+                  <ResultadosCalculos resultados={resultados} />
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="shadow-card">
+                <CardContent className="p-12 text-center">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                      <Calculator className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">Aguardando Cálculo</h3>
+                      <p className="text-muted-foreground">Preencha os dados ao lado para ver os resultados</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
