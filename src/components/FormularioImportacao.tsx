@@ -16,23 +16,28 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
   const { toast } = useToast();
   
   const [dados, setDados] = useState<DadosImportacao>({
-    cotacao_usd: 5.50,
-    valor_fob: 0,
-    frete_internacional: 0,
-    seguro_internacional: 0,
+    cotacao_usd: 5.417,
+    valor_fob: 72500.00,
+    frete_internacional: 6510.08,
+    seguro_internacional: 43.69,
     capatazias: 0,
     aliq_ii: 35,
     aliq_ipi: 0,
     aliq_pis: 2.62,
     aliq_cofins: 12.57,
     aliq_icms: 18,
-    taxa_siscomex: 185,
-    adicional_marinha: 30,
-    despesas_locais: [],
-    honorarios: 800,
-    sdas: 150,
-    emissao_li: 100,
-    taxa_expediente: 200
+    taxa_siscomex: 154.23,
+    adicional_marinha: 2840.35,
+    despesas_locais: [
+      { descricao: 'Armazenagem', valor: 31072.59, moeda: 'BRL' },
+      { descricao: 'Agenciamento', valor: 3250.44, moeda: 'BRL' },
+      { descricao: 'Taxas Locais (Frete Internacional – Armador) em US$', valor: 1335.30, moeda: 'USD' },
+      { descricao: 'Taxas Locais (Frete Internacional – Armador) em R$', valor: 2095.00, moeda: 'BRL' }
+    ],
+    honorarios: 800.00,
+    sdas: 400.00,
+    emissao_li: 120.00,
+    taxa_expediente: 0.00
   });
 
   const validarDados = () => {
