@@ -15,36 +15,66 @@ export const InputMonetario = ({
   id, 
   value, 
   onChange, 
-  placeholder = "0.00", 
+  placeholder = "0,00", 
   prefix = "", 
   suffix = "",
   className 
 }: InputMonetarioProps) => {
   
-  const formatarValor = (val: number) => {
+  const formatarParaExibicao = (val: number) => {
     if (val === 0) return "";
-    return val.toString();
+    
+    // Para porcentagens, não formatamos
+    if (suffix.includes('%')) {
+      return val.toString().replace('.', ',');
+    }
+    
+    // Para valores monetários, formatamos em pt-BR
+    return val.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let inputValue = e.target.value.replace(/[^0-9.,]/g, '');
+  const parseValorBrasileiro = (inputStr: string): number => {
+    if (!inputStr) return 0;
     
-    // Substitui vírgula por ponto para parsing
-    inputValue = inputValue.replace(',', '.');
+    // Remove espaços e prefixos/sufixos
+    let cleanStr = inputStr.replace(/[^\d.,]/g, '');
     
-    // Limita a 2 casas decimais se não for porcentagem
-    if (!suffix.includes('%') && inputValue.includes('.')) {
-      const parts = inputValue.split('.');
-      if (parts[1] && parts[1].length > 2) {
-        inputValue = parts[0] + '.' + parts[1].substring(0, 2);
+    // Se tem ponto E vírgula, assume formato brasileiro (1.234,56)
+    if (cleanStr.includes('.') && cleanStr.includes(',')) {
+      // Remove pontos (separadores de milhares) e substitui vírgula por ponto
+      cleanStr = cleanStr.replace(/\./g, '').replace(',', '.');
+    }
+    // Se tem apenas vírgula, assume que é decimal brasileiro
+    else if (cleanStr.includes(',') && !cleanStr.includes('.')) {
+      cleanStr = cleanStr.replace(',', '.');
+    }
+    // Se tem apenas ponto, pode ser decimal ou milhares
+    // Assumimos decimal se houver 1-2 dígitos após o ponto
+    else if (cleanStr.includes('.')) {
+      const parts = cleanStr.split('.');
+      if (parts.length === 2 && parts[1].length <= 2) {
+        // Provavelmente decimal: 123.45
+        // Mantém como está
+      } else {
+        // Provavelmente separador de milhares: 1.234
+        cleanStr = cleanStr.replace(/\./g, '');
       }
     }
     
-    const numeroValue = inputValue === '' ? 0 : parseFloat(inputValue) || 0;
+    const result = parseFloat(cleanStr) || 0;
+    return result;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    const numeroValue = parseValorBrasileiro(inputValue);
     onChange(numeroValue);
   };
 
-  const displayValue = value === 0 ? "" : value.toString();
+  const displayValue = formatarParaExibicao(value);
 
   return (
     <div className="relative">
