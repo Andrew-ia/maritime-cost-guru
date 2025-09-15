@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useEffect, useRef, useState } from "react";
 
 interface InputMonetarioProps {
   id?: string;
@@ -9,77 +10,129 @@ interface InputMonetarioProps {
   prefix?: string;
   suffix?: string;
   className?: string;
+  decimals?: number;
 }
 
 export const InputMonetario = ({ 
   id, 
   value, 
   onChange, 
-  placeholder = "0,00", 
+  placeholder = "0", 
   prefix = "", 
   suffix = "",
-  className 
+  className,
+  decimals = 2
 }: InputMonetarioProps) => {
+  const [displayValue, setDisplayValue] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   
-  const formatarParaExibicao = (val: number) => {
-    if (val === 0) return "";
+  // Converte string para número
+  const parseNumber = (str: string): number => {
+    if (!str || str.trim() === "") return 0;
     
-    // Para porcentagens, não formatamos
-    if (suffix.includes('%')) {
-      return val.toString().replace('.', ',');
+    // Remove tudo exceto números, vírgula e ponto
+    let cleanStr = str.replace(/[^\d,.-]/g, '');
+    
+    // Se não tem vírgula nem ponto, é um número inteiro
+    if (!cleanStr.includes(',') && !cleanStr.includes('.')) {
+      return parseFloat(cleanStr) || 0;
     }
     
-    // Para valores monetários, formatamos em pt-BR
-    return val.toLocaleString('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  };
-
-  const parseValorBrasileiro = (inputStr: string): number => {
-    if (!inputStr) return 0;
-    
-    // Remove espaços e prefixos/sufixos
-    let cleanStr = inputStr.replace(/[^\d.,]/g, '');
-    
-    // Se tem ponto E vírgula, assume formato brasileiro (1.234,56)
-    if (cleanStr.includes('.') && cleanStr.includes(',')) {
-      // Remove pontos (separadores de milhares) e substitui vírgula por ponto
-      cleanStr = cleanStr.replace(/\./g, '').replace(',', '.');
-    }
-    // Se tem apenas vírgula, assume que é decimal brasileiro
-    else if (cleanStr.includes(',') && !cleanStr.includes('.')) {
+    // Se tem apenas vírgula, substitui por ponto (formato brasileiro)
+    if (cleanStr.includes(',') && !cleanStr.includes('.')) {
       cleanStr = cleanStr.replace(',', '.');
     }
-    // Se tem apenas ponto, pode ser decimal ou milhares
-    // Assumimos decimal se houver 1-2 dígitos após o ponto
-    else if (cleanStr.includes('.')) {
-      const parts = cleanStr.split('.');
-      if (parts.length === 2 && parts[1].length <= 2) {
-        // Provavelmente decimal: 123.45
-        // Mantém como está
-      } else {
-        // Provavelmente separador de milhares: 1.234
-        cleanStr = cleanStr.replace(/\./g, '');
-      }
+    
+    return parseFloat(cleanStr) || 0;
+  };
+
+  // Formata o número para exibição quando não está focado
+  const formatNumber = (num: number): string => {
+    if (num === 0) return "";
+    
+    const isPercentage = suffix.includes('%');
+    
+    if (isPercentage) {
+      return num.toLocaleString('pt-BR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      });
     }
     
-    const result = parseFloat(cleanStr) || 0;
-    return result;
+    return num.toLocaleString('pt-BR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: decimals
+    });
   };
-
+  
+  // Atualiza o valor exibido quando o valor prop muda e o campo não está focado
+  useEffect(() => {
+    if (!isFocused) {
+      setDisplayValue(formatNumber(value));
+    }
+  }, [value, isFocused]);
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    const numeroValue = parseValorBrasileiro(inputValue);
-    onChange(numeroValue);
+    
+    // Permite digitação livre enquanto focado
+    setDisplayValue(inputValue);
+    
+    // Parse e notifica mudança
+    const numericValue = parseNumber(inputValue);
+    onChange(numericValue);
+  };
+  
+  const handleFocus = () => {
+    setIsFocused(true);
+    // Quando focar, mostra o valor sem formatação para facilitar edição
+    if (value > 0) {
+      setDisplayValue(value.toString().replace('.', ','));
+    } else {
+      setDisplayValue("");
+    }
+  };
+  
+  const handleBlur = () => {
+    setIsFocused(false);
+    // Quando sair do foco, formata o valor
+    const numericValue = parseNumber(displayValue);
+    if (numericValue > 0) {
+      setDisplayValue(formatNumber(numericValue));
+    } else {
+      setDisplayValue("");
+    }
+    // Garante que o valor final seja passado corretamente
+    onChange(numericValue);
   };
 
-  const displayValue = formatarParaExibicao(value);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Permite navegação e teclas especiais
+    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+                        'Home', 'End', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+    
+    if (allowedKeys.includes(e.key)) return;
+    
+    // Permite Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+    if (e.ctrlKey || e.metaKey) return;
+    
+    // Permite números
+    if (e.key >= '0' && e.key <= '9') return;
+    
+    // Permite vírgula e ponto como separador decimal
+    if (e.key === ',' || e.key === '.') return;
+    
+    // Permite sinal de menos no início
+    if (e.key === '-' && e.currentTarget.selectionStart === 0) return;
+    
+    // Bloqueia outras teclas
+    e.preventDefault();
+  };
 
   return (
     <div className="relative">
       {prefix && (
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none z-10">
           {prefix}
         </span>
       )}
@@ -88,6 +141,9 @@ export const InputMonetario = ({
         type="text"
         value={displayValue}
         onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        onFocus={handleFocus}
         placeholder={placeholder}
         className={cn(
           "bg-background border-input",
@@ -97,7 +153,7 @@ export const InputMonetario = ({
         )}
       />
       {suffix && (
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none z-10">
           {suffix}
         </span>
       )}

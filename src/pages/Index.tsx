@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { Ship, Calculator, TrendingUp } from "lucide-react";
+import { Ship, Calculator, TrendingUp, User, History, Settings } from "lucide-react";
 import { FormularioImportacao } from "@/components/FormularioImportacao";
 import { ResultadosCalculos } from "@/components/ResultadosCalculos";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { UserMenu } from "@/components/UserMenu";
+import { useNavigate } from "react-router-dom";
 
 export interface DadosImportacao {
   cotacao_usd: number;
@@ -30,6 +33,7 @@ export interface DadosImportacao {
 
 export interface ResultadosCalculados {
   cif: number;
+  cif_usd: number;
   ii: number;
   ipi: number;
   pis: number;
@@ -46,6 +50,7 @@ export interface ResultadosCalculados {
 const Index = () => {
   const [dados, setDados] = useState<DadosImportacao | null>(null);
   const [resultados, setResultados] = useState<ResultadosCalculados | null>(null);
+  const navigate = useNavigate();
 
   const calcularImportacao = (dadosForm: DadosImportacao) => {
     // 1. CIF
@@ -89,6 +94,7 @@ const Index = () => {
 
     const resultadosCalculados = {
       cif,
+      cif_usd: dadosForm.valor_fob + dadosForm.frete_internacional + dadosForm.seguro_internacional,
       ii,
       ipi,
       pis,
@@ -111,13 +117,50 @@ const Index = () => {
       {/* Header */}
       <header className="bg-gradient-maritime shadow-elegant">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-12 h-12 bg-white/20 rounded-xl">
-              <Ship className="w-6 h-6 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-12 h-12 bg-white/20 rounded-xl">
+                <Ship className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Pré-Custo Importação Marítima</h1>
+                <p className="text-maritime-accent/90">Calcule todos os impostos e custos de importação</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Pré-Custo Importação Marítima</h1>
-              <p className="text-maritime-accent/90">Calcule todos os impostos e custos de importação</p>
+            
+            <div className="flex items-center gap-4">
+              {/* Menu de Navegação Principal */}
+              <nav className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => navigate('/calculations')}
+                  className="text-white hover:bg-white/20 gap-2"
+                >
+                  <History className="w-4 h-4" />
+                  Cálculos
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => navigate('/profile')}
+                  className="text-white hover:bg-white/20 gap-2"
+                >
+                  <User className="w-4 h-4" />
+                  Perfil
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => navigate('/settings')}
+                  className="text-white hover:bg-white/20 gap-2"
+                >
+                  <Settings className="w-4 h-4" />
+                  Configurações
+                </Button>
+              </nav>
+              
+              <UserMenu />
             </div>
           </div>
         </div>
@@ -147,7 +190,7 @@ const Index = () => {
                     <TrendingUp className="w-5 h-5 text-success" />
                     <h2 className="text-xl font-semibold">Resultados Calculados</h2>
                   </div>
-                  <ResultadosCalculos resultados={resultados} />
+                  <ResultadosCalculos resultados={resultados} dados={dados} />
                 </CardContent>
               </Card>
             ) : (

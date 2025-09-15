@@ -16,28 +16,23 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
   const { toast } = useToast();
   
   const [dados, setDados] = useState<DadosImportacao>({
-    cotacao_usd: 5.417,
-    valor_fob: 72500.00,
-    frete_internacional: 6510.08,
-    seguro_internacional: 43.69,
+    cotacao_usd: 0,
+    valor_fob: 0,
+    frete_internacional: 0,
+    seguro_internacional: 0,
     capatazias: 0,
-    aliq_ii: 35,
+    aliq_ii: 0,
     aliq_ipi: 0,
-    aliq_pis: 2.62,
-    aliq_cofins: 12.57,
-    aliq_icms: 18,
-    taxa_siscomex: 154.23,
-    adicional_marinha: 2840.35,
-    despesas_locais: [
-      { descricao: 'Armazenagem', valor: 31072.59, moeda: 'BRL' },
-      { descricao: 'Agenciamento', valor: 3250.44, moeda: 'BRL' },
-      { descricao: 'Taxas Locais (Frete Internacional – Armador) em US$', valor: 1335.30, moeda: 'USD' },
-      { descricao: 'Taxas Locais (Frete Internacional – Armador) em R$', valor: 2095.00, moeda: 'BRL' }
-    ],
-    honorarios: 800.00,
-    sdas: 400.00,
-    emissao_li: 120.00,
-    taxa_expediente: 0.00
+    aliq_pis: 0,
+    aliq_cofins: 0,
+    aliq_icms: 0,
+    taxa_siscomex: 0,
+    adicional_marinha: 0,
+    despesas_locais: [],
+    honorarios: 0,
+    sdas: 0,
+    emissao_li: 0,
+    taxa_expediente: 0
   });
 
   const validarDados = () => {
@@ -68,7 +63,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
     }
   };
 
-  const atualizarCampo = (campo: keyof DadosImportacao, valor: any) => {
+  const atualizarCampo = (campo: keyof DadosImportacao, valor: number | Array<{descricao: string; valor: number; moeda: 'BRL' | 'USD'}>) => {
     setDados(prev => ({ ...prev, [campo]: valor }));
   };
 
@@ -88,8 +83,9 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               id="cotacao"
               value={dados.cotacao_usd}
               onChange={(valor) => atualizarCampo('cotacao_usd', valor)}
-              placeholder="Ex: 5.50"
+              placeholder="0"
               prefix="R$ "
+              decimals={4}
             />
           </div>
         </div>
@@ -111,7 +107,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               id="fob"
               value={dados.valor_fob}
               onChange={(valor) => atualizarCampo('valor_fob', valor)}
-              placeholder="0.00"
+              placeholder="0"
               prefix="$ "
             />
           </div>
@@ -121,7 +117,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               id="frete"
               value={dados.frete_internacional}
               onChange={(valor) => atualizarCampo('frete_internacional', valor)}
-              placeholder="0.00"
+              placeholder="0"
               prefix="$ "
             />
           </div>
@@ -131,7 +127,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               id="seguro"
               value={dados.seguro_internacional}
               onChange={(valor) => atualizarCampo('seguro_internacional', valor)}
-              placeholder="0.00"
+              placeholder="0"
               prefix="$ "
             />
           </div>
@@ -141,7 +137,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               id="capatazias"
               value={dados.capatazias}
               onChange={(valor) => atualizarCampo('capatazias', valor)}
-              placeholder="0.00"
+              placeholder="0"
               prefix="R$ "
             />
           </div>
@@ -227,7 +223,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               id="siscomex"
               value={dados.taxa_siscomex}
               onChange={(valor) => atualizarCampo('taxa_siscomex', valor)}
-              placeholder="0.00"
+              placeholder="0"
               prefix="R$ "
             />
           </div>
@@ -237,7 +233,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               id="marinha"
               value={dados.adicional_marinha}
               onChange={(valor) => atualizarCampo('adicional_marinha', valor)}
-              placeholder="0.00"
+              placeholder="0"
               prefix="R$ "
             />
           </div>
@@ -268,7 +264,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               id="honorarios"
               value={dados.honorarios}
               onChange={(valor) => atualizarCampo('honorarios', valor)}
-              placeholder="0.00"
+              placeholder="0"
               prefix="R$ "
             />
           </div>
@@ -278,7 +274,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               id="sdas"
               value={dados.sdas}
               onChange={(valor) => atualizarCampo('sdas', valor)}
-              placeholder="0.00"
+              placeholder="0"
               prefix="R$ "
             />
           </div>
@@ -288,7 +284,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               id="li"
               value={dados.emissao_li}
               onChange={(valor) => atualizarCampo('emissao_li', valor)}
-              placeholder="0.00"
+              placeholder="0"
               prefix="R$ "
             />
           </div>
@@ -298,7 +294,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               id="expediente"
               value={dados.taxa_expediente}
               onChange={(valor) => atualizarCampo('taxa_expediente', valor)}
-              placeholder="0.00"
+              placeholder="0"
               prefix="R$ "
             />
           </div>
