@@ -1,73 +1,155 @@
-# Welcome to your Lovable project
+# Maritime Cost Guru - Pré-Custo Importação Marítima
 
-## Project info
+## 📊 Sobre o Projeto
 
-**URL**: https://lovable.dev/projects/78680607-ac1e-4017-b0b3-0db4edb899cb
+Sistema completo para cálculo de impostos e custos de importação marítima, desenvolvido para facilitar o processo de precificação de importações.
 
-## How can I edit this code?
+### ✨ Funcionalidades
 
-There are several ways of editing your application.
+- **Cálculo Automático de Impostos**
+  - II (Imposto de Importação)
+  - IPI (Imposto sobre Produtos Industrializados)
+  - PIS (Programa de Integração Social)
+  - COFINS (Contribuição para Financiamento da Seguridade Social)
+  - ICMS (Imposto sobre Circulação de Mercadorias e Serviços)
 
-**Use Lovable**
+- **Gestão de Custos**
+  - Valor FOB
+  - Frete Internacional
+  - Seguro Internacional
+  - Despesas Locais (BRL e USD)
+  - Serviços Fixos
+  - Taxas (SISCOMEX, Marinha Mercante)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/78680607-ac1e-4017-b0b3-0db4edb899cb) and start prompting.
+- **Exportação de Relatórios**
+  - Geração de PDF profissional
+  - Valores em BRL e USD
+  - Layout otimizado para impressão
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🚀 Tecnologias Utilizadas
 
-**Use your preferred IDE**
+- **Frontend**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **Estilização**: Tailwind CSS
+- **Componentes**: shadcn/ui
+- **PDF**: jsPDF + jspdf-autotable
+- **Formulários**: React Hook Form
+- **Validação**: Zod
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 📦 Instalação
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Clone o repositório
+git clone https://github.com/Andrew-ia/maritime-cost-guru.git
 
-Follow these steps:
+# Entre no diretório
+cd maritime-cost-guru
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Instale as dependências
+npm install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Configure as variáveis de ambiente
+cp .env.example .env
+# Edite o arquivo .env com suas credenciais do Supabase
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Execute o projeto
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+O projeto estará disponível em: **http://localhost:8080**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🖥️ Scripts Disponíveis
 
-**Use GitHub Codespaces**
+```bash
+npm run dev       # Inicia o servidor de desenvolvimento
+npm run build     # Gera build de produção
+npm run lint      # Executa o linter
+npm run preview   # Visualiza o build de produção
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📈 Fórmulas de Cálculo
 
-## What technologies are used for this project?
+### CIF (Cost, Insurance and Freight)
+```
+CIF = (FOB + Frete + Seguro) × Cotação USD
+```
 
-This project is built with:
+### Base ICMS
+```
+Base ICMS = (CIF + II + IPI + PIS + COFINS + Outras Taxas) ÷ (1 - Alíquota ICMS)
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Custo Final
+```
+Custo Final = CIF + Total Impostos + Total Despesas + Total Serviços
+```
 
-## How can I deploy this project?
+## 🎯 Principais Recursos
 
-Simply open [Lovable](https://lovable.dev/projects/78680607-ac1e-4017-b0b3-0db4edb899cb) and click on Share -> Publish.
+1. **Interface Intuitiva**: Design limpo e moderno com foco na usabilidade
+2. **Cálculos Precisos**: Fórmulas atualizadas conforme legislação brasileira
+3. **Responsividade**: Funciona perfeitamente em desktop e mobile
+4. **Exportação PDF**: Relatórios profissionais prontos para envio ao cliente
+5. **Validação de Dados**: Verificação automática de valores inseridos
+6. **Autenticação Segura**: Sistema completo de login/registro com Supabase
+7. **Histórico de Cálculos**: Salve e gerencie todos os seus cálculos
+8. **Gerenciamento de Perfil**: Configure suas informações pessoais
+9. **Configurações Personalizadas**: Ajuste preferências do sistema
 
-## Can I connect a custom domain to my Lovable project?
+## 📝 Estrutura do Projeto
 
-Yes, you can!
+```
+src/
+├── components/         # Componentes React
+│   ├── ui/            # Componentes shadcn/ui
+│   ├── FormularioImportacao.tsx
+│   ├── InputMonetario.tsx
+│   ├── ResultadosCalculos.tsx
+│   └── TabelaDespesas.tsx
+├── pages/             # Páginas da aplicação
+│   ├── Index.tsx      # Página principal (calculadora)
+│   ├── Auth.tsx       # Página de login/registro
+│   ├── Calculations.tsx # Histórico de cálculos
+│   ├── Profile.tsx    # Gerenciamento de perfil
+│   ├── Settings.tsx   # Configurações do usuário
+│   └── NotFound.tsx   # Página 404
+├── utils/             # Funções utilitárias
+│   └── generatePDF.ts # Geração de PDF
+├── hooks/             # React hooks customizados
+├── contexts/          # Contextos React
+│   └── AuthContext.tsx # Contexto de autenticação
+└── lib/               # Configurações e utilitários
+    ├── supabase.ts    # Cliente Supabase
+    └── utils.ts       # Utilitários gerais
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🗄️ Banco de Dados
+
+O projeto utiliza **Supabase** como backend e inclui:
+
+### Tabelas
+- **profiles**: Perfis de usuário
+- **calculations_history**: Histórico de cálculos salvos
+
+### Recursos de Segurança
+- **Row Level Security (RLS)**: Cada usuário só acessa seus próprios dados
+- **Políticas de Segurança**: Controle granular de acesso
+- **Triggers**: Criação automática de perfil e atualização de timestamps
+
+### Funcionalidades
+- **Autenticação**: Login/registro com email e senha
+- **Persistência**: Salvamento automático de cálculos
+- **Histórico**: Consulta e gerenciamento de cálculos anteriores
+
+## 🤝 Contribuindo
+
+Contribuições são sempre bem-vindas! Sinta-se à vontade para abrir issues e pull requests.
+
+## 📄 Licença
+
+Este projeto está sob licença MIT.
+
+---
+
+Desenvolvido com ❤️ para facilitar cálculos de importação marítima
