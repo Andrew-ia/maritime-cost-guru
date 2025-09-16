@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { History, Trash2, Download, Eye, Loader2, Calculator, DollarSign, Building, ArrowLeft, Home } from 'lucide-react';
+import { History, Trash2, Download, Eye, Loader2, Calculator, DollarSign, Building, ArrowLeft, Home, User, Crown } from 'lucide-react';
 import { generatePDF } from '@/utils/generatePDF';
 import { DadosImportacao, ResultadosCalculados } from '@/pages/Index';
 
@@ -25,10 +26,14 @@ interface CalculationRecord {
   id: string;
   calculation_name: string;
   client_id?: string;
+  user_id: string;
   client?: {
     id: string;
     name: string;
     document?: string;
+  };
+  author?: {
+    email: string;
   };
   calculation_data: {
     dados: DadosImportacao;
@@ -36,12 +41,14 @@ interface CalculationRecord {
     savedAt: string;
   };
   created_at: string;
+  is_own_calculation?: boolean;
 }
 
 export default function Calculations() {
   const [calculations, setCalculations] = useState<CalculationRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [authorFilter, setAuthorFilter] = useState<string>('all');
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -53,21 +60,26 @@ export default function Calculations() {
 
   const fetchCalculations = async () => {
     try {
-      const { data, error } = await supabase
-        .from('calculations_history')
-        .select(`
-          *,
-          client:clients (
-            id,
-            name,
-            document
-          )
-        `)
-        .order('created_at', { ascending: false });
+      // Usar SQL direto para fazer JOIN com auth.users
+      const { data, error } = await supabase.rpc('get_calculations_with_authors');
 
       if (error) throw error;
 
-      setCalculations(data || []);
+      // Processar dados para adicionar flag is_own_calculation
+      const processedData = (data || []).map((calculation: any) => ({
+        ...calculation,
+        is_own_calculation: calculation.user_id === user?.id,
+        author: {
+          email: calculation.author_email || 'Usuário excluído'
+        },
+        client: calculation.client_name ? {
+          id: calculation.client_id,
+          name: calculation.client_name,
+          document: calculation.client_document
+        } : null
+      }));
+
+      setCalculations(processedData);
     } catch (error: any) {
       console.error('Erro ao buscar cálculos:', error);
       toast({
@@ -141,6 +153,18 @@ export default function Calculations() {
     });
   };
 
+  // Filtrar cálculos baseado na seleção
+  const filteredCalculations = useMemo(() => {
+    switch (authorFilter) {
+      case 'mine':
+        return calculations.filter(calc => calc.is_own_calculation);
+      case 'others':
+        return calculations.filter(calc => !calc.is_own_calculation);
+      default:
+        return calculations;
+    }
+  }, [calculations, authorFilter]);
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -176,47 +200,111 @@ export default function Calculations() {
       
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <History className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold">Cálculos Salvos</h1>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <History className="w-8 h-8 text-primary" />
+            <div>
+              <h1 className="text-3xl font-bold">Cálculos Salvos</h1>
+              <p className="text-muted-foreground">
+                Histórico de todos os cálculos de importação marítima da equipe
+              </p>
+            </div>
+          </div>
+          
+          {/* Filtro por autor */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Mostrar:</span>
+            <Select value={authorFilter} onValueChange={setAuthorFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  Todos ({calculations.length})
+                </SelectItem>
+                <SelectItem value="mine">
+                  Meus cálculos ({calculations.filter(c => c.is_own_calculation).length})
+                </SelectItem>
+                <SelectItem value="others">
+                  De outros ({calculations.filter(c => !c.is_own_calculation).length})
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <p className="text-muted-foreground">
-          Histórico de todos os seus cálculos de importação marítima
-        </p>
       </div>
 
-      {calculations.length === 0 ? (
+      {filteredCalculations.length === 0 ? (
         <Card>
           <CardContent className="py-16">
             <div className="text-center">
               <Calculator className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-xl font-semibold mb-2">Nenhum cálculo salvo</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                {calculations.length === 0 
+                  ? 'Nenhum cálculo salvo' 
+                  : 'Nenhum cálculo encontrado'
+                }
+              </h3>
               <p className="text-muted-foreground mb-6">
-                Você ainda não salvou nenhum cálculo. Comece criando seu primeiro cálculo de importação.
+                {calculations.length === 0
+                  ? 'Nenhum cálculo foi salvo ainda. Comece criando seu primeiro cálculo de importação.'
+                  : `Não há cálculos ${
+                      authorFilter === 'mine' ? 'seus' :
+                      authorFilter === 'others' ? 'de outros usuários' : ''
+                    } para exibir.`
+                }
               </p>
-              <Button onClick={() => window.location.href = '/'}>
-                Fazer Novo Cálculo
-              </Button>
+              {calculations.length === 0 && (
+                <Button onClick={() => window.location.href = '/'}>
+                  Fazer Novo Cálculo
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {calculations.map((calculation) => (
-            <Card key={calculation.id} className="hover:shadow-lg transition-shadow">
+          {filteredCalculations.map((calculation) => (
+            <Card 
+              key={calculation.id} 
+              className={`hover:shadow-lg transition-shadow ${
+                calculation.is_own_calculation 
+                  ? 'border-primary/50 bg-primary/5' 
+                  : 'border-border'
+              }`}
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg line-clamp-2 mb-1">
-                      {calculation.calculation_name}
-                    </CardTitle>
+                    <div className="flex items-center gap-2 mb-1">
+                      <CardTitle className="text-lg line-clamp-2">
+                        {calculation.calculation_name}
+                      </CardTitle>
+                      {calculation.is_own_calculation && (
+                        <Crown className="w-4 h-4 text-primary flex-shrink-0" title="Seu cálculo" />
+                      )}
+                    </div>
                     <CardDescription className="text-sm space-y-1">
+                      {/* Autor */}
+                      <div className="flex items-center gap-1">
+                        <User className="w-3 h-3" />
+                        <span className={calculation.is_own_calculation ? 'text-primary font-medium' : 'text-muted-foreground'}>
+                          {calculation.is_own_calculation 
+                            ? 'Você' 
+                            : calculation.author?.email.split('@')[0] || 'Desconhecido'
+                          }
+                        </span>
+                      </div>
+                      
+                      {/* Cliente */}
                       {calculation.client && (
                         <div className="flex items-center gap-1">
                           <Building className="w-3 h-3" />
                           <span className="font-medium">{calculation.client.name}</span>
                         </div>
                       )}
+                      
+                      {/* Data */}
                       <div>{formatDate(calculation.created_at)}</div>
                     </CardDescription>
                   </div>
@@ -263,39 +351,52 @@ export default function Calculations() {
                       PDF
                     </Button>
                     
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          disabled={deletingId === calculation.id}
-                        >
-                          {deletingId === calculation.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="w-4 h-4" />
-                          )}
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Excluir cálculo</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Tem certeza que deseja excluir "{calculation.calculation_name}"? 
-                            Esta ação não pode ser desfeita.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDelete(calculation.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    {/* Botão de excluir apenas para próprios cálculos */}
+                    {calculation.is_own_calculation ? (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            disabled={deletingId === calculation.id}
                           >
-                            Excluir
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                            {deletingId === calculation.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Excluir cálculo</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja excluir "{calculation.calculation_name}"? 
+                              Esta ação não pode ser desfeita.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(calculation.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    ) : (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        disabled
+                        title="Apenas o autor pode excluir este cálculo"
+                        className="opacity-50 cursor-not-allowed"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>
