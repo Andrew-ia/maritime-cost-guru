@@ -143,12 +143,11 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <Label htmlFor="container">Container</Label>
-            <Select value={dados.container || ""} onValueChange={(value) => atualizarCampo('container', value)}>
+            <Select value={dados.container || undefined} onValueChange={(value) => atualizarCampo('container', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o tipo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Selecione o tipo</SelectItem>
                 <SelectItem value="20'">20'</SelectItem>
                 <SelectItem value="40'">40'</SelectItem>
                 <SelectItem value="LCL">LCL</SelectItem>
