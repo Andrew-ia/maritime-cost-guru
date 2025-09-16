@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Ship, Calculator, TrendingUp, User, History, Settings, Users } from "lucide-react";
+import { Ship, Calculator, TrendingUp, User, History, Users } from "lucide-react";
 import { FormularioImportacao } from "@/components/FormularioImportacao";
 import { ResultadosCalculos } from "@/components/ResultadosCalculos";
 import { Card, CardContent } from "@/components/ui/card";
@@ -173,15 +173,6 @@ const Index = () => {
                 >
                   <User className="w-4 h-4" />
                   Perfil
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => navigate('/settings')}
-                  className="text-white hover:bg-white/20 gap-2"
-                >
-                  <Settings className="w-4 h-4" />
-                  Configurações
                 </Button>
               </nav>
               
