@@ -17,13 +17,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { History, Trash2, Download, Eye, Loader2, Calculator, DollarSign } from 'lucide-react';
+import { History, Trash2, Download, Eye, Loader2, Calculator, DollarSign, Building } from 'lucide-react';
 import { generatePDF } from '@/utils/generatePDF';
 import { DadosImportacao, ResultadosCalculados } from '@/pages/Index';
 
 interface CalculationRecord {
   id: string;
   calculation_name: string;
+  client_id?: string;
+  client?: {
+    id: string;
+    name: string;
+    document?: string;
+  };
   calculation_data: {
     dados: DadosImportacao;
     resultados: ResultadosCalculados;
@@ -49,7 +55,14 @@ export default function Calculations() {
     try {
       const { data, error } = await supabase
         .from('calculations_history')
-        .select('*')
+        .select(`
+          *,
+          client:clients (
+            id,
+            name,
+            document
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -178,8 +191,14 @@ export default function Calculations() {
                     <CardTitle className="text-lg line-clamp-2 mb-1">
                       {calculation.calculation_name}
                     </CardTitle>
-                    <CardDescription className="text-sm">
-                      {formatDate(calculation.created_at)}
+                    <CardDescription className="text-sm space-y-1">
+                      {calculation.client && (
+                        <div className="flex items-center gap-1">
+                          <Building className="w-3 h-3" />
+                          <span className="font-medium">{calculation.client.name}</span>
+                        </div>
+                      )}
+                      <div>{formatDate(calculation.created_at)}</div>
                     </CardDescription>
                   </div>
                 </div>

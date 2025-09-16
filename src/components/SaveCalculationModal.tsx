@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useClients } from '@/contexts/ClientsContext';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -13,7 +14,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save, Plus, Users } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { DadosImportacao, ResultadosCalculados } from '@/pages/Index';
 
 interface SaveCalculationModalProps {
@@ -30,8 +38,10 @@ export function SaveCalculationModal({
   resultados,
 }: SaveCalculationModalProps) {
   const [calculationName, setCalculationName] = useState('');
+  const [selectedClientId, setSelectedClientId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
+  const { clients, loading: clientsLoading } = useClients();
   const { toast } = useToast();
 
   const handleSave = async () => {
@@ -66,6 +76,7 @@ export function SaveCalculationModal({
         .from('calculations_history')
         .insert({
           user_id: user.id,
+          client_id: selectedClientId || null,
           calculation_name: calculationName.trim(),
           calculation_data: calculationData,
         });
@@ -80,6 +91,7 @@ export function SaveCalculationModal({
       });
 
       setCalculationName('');
+      setSelectedClientId('');
       onClose();
     } catch (error: any) {
       console.error('Erro ao salvar cálculo:', error);
@@ -96,6 +108,7 @@ export function SaveCalculationModal({
   const handleClose = () => {
     if (!isLoading) {
       setCalculationName('');
+      setSelectedClientId('');
       onClose();
     }
   };
@@ -115,7 +128,38 @@ export function SaveCalculationModal({
         
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="calculation-name">Nome do Cálculo</Label>
+            <Label htmlFor="client">Cliente (Opcional)</Label>
+            <Select
+              value={selectedClientId}
+              onValueChange={setSelectedClientId}
+              disabled={isLoading || clientsLoading}
+            >
+              <SelectTrigger id="client">
+                <SelectValue placeholder="Selecione um cliente..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Sem cliente</SelectItem>
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.name}
+                    {client.document && ` - ${client.document}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {clients.length === 0 && !clientsLoading && (
+              <p className="text-xs text-muted-foreground">
+                <Users className="w-3 h-3 inline mr-1" />
+                Nenhum cliente cadastrado.
+                <a href="/clients" className="text-primary hover:underline ml-1">
+                  Cadastrar cliente
+                </a>
+              </p>
+            )}
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="calculation-name">Nome do Cálculo *</Label>
             <Input
               id="calculation-name"
               placeholder="Ex: Importação Container 40ft - Janeiro 2025"
@@ -123,6 +167,7 @@ export function SaveCalculationModal({
               onChange={(e) => setCalculationName(e.target.value)}
               disabled={isLoading}
               maxLength={100}
+              required
             />
           </div>
           
