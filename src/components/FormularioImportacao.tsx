@@ -143,14 +143,20 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <Label htmlFor="container">Container</Label>
-            <input
+            <select
               id="container"
-              type="text"
               value={dados.container}
               onChange={(e) => atualizarCampo('container', e.target.value)}
-              placeholder="Ex: 20', 40', 40'HC"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
-            />
+            >
+              <option value="">Selecione o tipo</option>
+              <option value="20'">20'</option>
+              <option value="40'">40'</option>
+              <option value="LCL">LCL</option>
+              <option value="RORO">RORO</option>
+              <option value="Open Top">Open Top</option>
+              <option value="Flat Rack">Flat Rack</option>
+            </select>
           </div>
           
           <div>
