@@ -76,7 +76,9 @@ export default function Calculations() {
         client: calculation.client_name ? {
           id: calculation.client_id,
           name: calculation.client_name,
-          document: calculation.client_document
+          document: calculation.client_document,
+          phone: calculation.client_phone,
+          email: calculation.client_email
         } : null
       }));
 
