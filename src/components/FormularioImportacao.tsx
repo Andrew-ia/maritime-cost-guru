@@ -4,7 +4,6 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Calculator, DollarSign, Ship, FileText, Settings, Package } from "lucide-react";
 import { InputMonetario } from "@/components/InputMonetario";
-import { TabelaDespesas } from "@/components/TabelaDespesas";
 import { DadosImportacao } from "@/pages/Index";
 import { useToast } from "@/hooks/use-toast";
 
@@ -38,7 +37,16 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
     aliq_icms: 0,
     taxa_siscomex: 0,
     adicional_marinha: 0,
-    despesas_locais: [],
+    // Despesas Locais
+    armazenagem: 0,
+    desova: 0,
+    lacre: 0,
+    scanner: 0,
+    mov_carga: 0,
+    gerenciamento_risco: 0,
+    desconsolidacao: 0,
+    outras_despesas: 0,
+    // Serviços
     honorarios: 0,
     sdas: 0,
     emissao_li: 0,
@@ -372,11 +380,100 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
 
       {/* Despesas Locais */}
       <div className="space-y-4">
-        <h3 className="font-semibold">Despesas Locais</h3>
-        <TabelaDespesas
-          despesas={dados.despesas_locais}
-          onChange={(despesas) => atualizarCampo('despesas_locais', despesas)}
-        />
+        <div className="flex items-center gap-2">
+          <Settings className="w-4 h-4 text-maritime-light" />
+          <h3 className="font-semibold">Despesas Locais (BRL)</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <Label htmlFor="armazenagem">Armazenagem</Label>
+            <InputMonetario
+              id="armazenagem"
+              value={dados.armazenagem}
+              onChange={(valor) => atualizarCampo('armazenagem', valor)}
+              placeholder="0"
+              prefix="R$ "
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="desova">Desova</Label>
+            <InputMonetario
+              id="desova"
+              value={dados.desova}
+              onChange={(valor) => atualizarCampo('desova', valor)}
+              placeholder="0"
+              prefix="R$ "
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="lacre">Lacre</Label>
+            <InputMonetario
+              id="lacre"
+              value={dados.lacre}
+              onChange={(valor) => atualizarCampo('lacre', valor)}
+              placeholder="0"
+              prefix="R$ "
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="scanner">Scanner</Label>
+            <InputMonetario
+              id="scanner"
+              value={dados.scanner}
+              onChange={(valor) => atualizarCampo('scanner', valor)}
+              placeholder="0"
+              prefix="R$ "
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="mov_carga">Movimentação de Carga</Label>
+            <InputMonetario
+              id="mov_carga"
+              value={dados.mov_carga}
+              onChange={(valor) => atualizarCampo('mov_carga', valor)}
+              placeholder="0"
+              prefix="R$ "
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="gerenciamento_risco">Gerenciamento de Risco</Label>
+            <InputMonetario
+              id="gerenciamento_risco"
+              value={dados.gerenciamento_risco}
+              onChange={(valor) => atualizarCampo('gerenciamento_risco', valor)}
+              placeholder="0"
+              prefix="R$ "
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="desconsolidacao">Desconsolidação</Label>
+            <InputMonetario
+              id="desconsolidacao"
+              value={dados.desconsolidacao}
+              onChange={(valor) => atualizarCampo('desconsolidacao', valor)}
+              placeholder="0"
+              prefix="R$ "
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="outras_despesas">Outras Despesas</Label>
+            <InputMonetario
+              id="outras_despesas"
+              value={dados.outras_despesas}
+              onChange={(valor) => atualizarCampo('outras_despesas', valor)}
+              placeholder="0"
+              prefix="R$ "
+            />
+          </div>
+        </div>
       </div>
 
       <Separator />

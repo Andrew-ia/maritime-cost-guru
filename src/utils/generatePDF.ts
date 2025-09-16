@@ -169,30 +169,36 @@ export const generatePDF = (dados: DadosImportacao, resultados: ResultadosCalcul
   
   yPos = (doc as any).lastAutoTable.finalY + 4;
   
-  // 3. DESPESAS LOCAIS (se existirem)
-  if (dados.despesas_locais.length > 0) {
+  // 3. DESPESAS LOCAIS
+  const despesasData = [
+    { label: 'Armazenagem', value: dados.armazenagem || 0 },
+    { label: 'Desova', value: dados.desova || 0 },
+    { label: 'Lacre', value: dados.lacre || 0 },
+    { label: 'Scanner', value: dados.scanner || 0 },
+    { label: 'Movimentação de Carga', value: dados.mov_carga || 0 },
+    { label: 'Gerenciamento de Risco', value: dados.gerenciamento_risco || 0 },
+    { label: 'Desconsolidação', value: dados.desconsolidacao || 0 },
+    { label: 'Outras Despesas', value: dados.outras_despesas || 0 }
+  ].filter(item => item.value > 0);
+
+  if (despesasData.length > 0) {
     doc.setTextColor(...primaryColor);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
     doc.text('3. DESPESAS LOCAIS', margin, yPos);
     yPos += 4;
     
-    const despesasBody = dados.despesas_locais.map(despesa => {
-      const valorBRL = despesa.moeda === 'USD' ? despesa.valor * dados.cotacao_usd : despesa.valor;
-      const valorUSD = despesa.moeda === 'USD' ? despesa.valor : despesa.valor / dados.cotacao_usd;
-      return [
-        despesa.descricao.length > 35 ? despesa.descricao.substring(0, 35) + '...' : despesa.descricao,
-        despesa.moeda,
-        formatCurrency(valorBRL),
-        formatCurrency(valorUSD, 'USD')
-      ];
-    });
+    const despesasBody = despesasData.map(despesa => [
+      despesa.label,
+      formatCurrency(despesa.value),
+      formatCurrency(toUSD(despesa.value), 'USD')
+    ]);
     
     autoTable(doc, {
       startY: yPos,
-      head: [['Descrição', 'Moeda', 'Valor R$', 'Valor USD']],
+      head: [['Descrição', 'Valor R$', 'Valor USD']],
       body: despesasBody,
-      foot: [['TOTAL DESPESAS', '', formatCurrency(resultados.total_despesas), formatCurrency(toUSD(resultados.total_despesas), 'USD')]],
+      foot: [['TOTAL DESPESAS', formatCurrency(resultados.total_despesas), formatCurrency(toUSD(resultados.total_despesas), 'USD')]],
       ...standardTableConfig,
       footStyles: {
         fillColor: secondaryColor,
@@ -202,9 +208,8 @@ export const generatePDF = (dados: DadosImportacao, resultados: ResultadosCalcul
       },
       columnStyles: {
         0: { cellWidth: contentWidth * 0.5, halign: 'left' },
-        1: { cellWidth: contentWidth * 0.15, halign: 'center' },
-        2: { cellWidth: contentWidth * 0.175, halign: 'right' },
-        3: { cellWidth: contentWidth * 0.175, halign: 'right' }
+        1: { cellWidth: contentWidth * 0.25, halign: 'right' },
+        2: { cellWidth: contentWidth * 0.25, halign: 'right' }
       }
     });
     

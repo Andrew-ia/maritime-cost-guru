@@ -31,11 +31,17 @@ export interface DadosImportacao {
   aliq_icms: number;
   taxa_siscomex: number;
   adicional_marinha: number;
-  despesas_locais: Array<{
-    descricao: string;
-    valor: number;
-    moeda: 'BRL' | 'USD';
-  }>;
+  
+  // Despesas Locais (campos individuais)
+  armazenagem: number;
+  desova: number;
+  lacre: number;
+  scanner: number;
+  mov_carga: number;
+  gerenciamento_risco: number;
+  desconsolidacao: number;
+  outras_despesas: number;
+  
   honorarios: number;
   sdas: number;
   emissao_li: number;
@@ -88,11 +94,10 @@ const Index = () => {
     // 8. TOTAL IMPOSTOS
     const total_impostos = ii + ipi + pis + cofins + icms + dadosForm.taxa_siscomex + dadosForm.adicional_marinha;
     
-    // 9. TOTAL DESPESAS
-    const total_despesas = dadosForm.despesas_locais.reduce((acc, despesa) => {
-      const valor = despesa.moeda === 'USD' ? despesa.valor * dadosForm.cotacao_usd : despesa.valor;
-      return acc + valor;
-    }, 0);
+    // 9. TOTAL DESPESAS (campos individuais em BRL)
+    const total_despesas = dadosForm.armazenagem + dadosForm.desova + dadosForm.lacre + 
+                          dadosForm.scanner + dadosForm.mov_carga + dadosForm.gerenciamento_risco + 
+                          dadosForm.desconsolidacao + dadosForm.outras_despesas;
     
     // 10. TOTAL SERVIÇOS
     const total_servicos = dadosForm.honorarios + dadosForm.sdas + dadosForm.emissao_li + dadosForm.taxa_expediente;
