@@ -40,7 +40,9 @@ import {
   Phone,
   MapPin,
   FileText,
-  Calculator
+  Calculator,
+  ArrowLeft,
+  Home
 } from 'lucide-react';
 
 export interface Client {
@@ -268,6 +270,24 @@ export default function Clients() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Botão Voltar e Navegação */}
+      <div className="flex items-center gap-4 mb-6">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => window.history.back()}
+          className="gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </Button>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Home className="w-4 h-4" />
+          <span>/</span>
+          <span className="text-foreground">Clientes</span>
+        </div>
+      </div>
+      
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">

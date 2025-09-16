@@ -130,15 +130,15 @@ export function SaveCalculationModal({
           <div className="space-y-2">
             <Label htmlFor="client">Cliente (Opcional)</Label>
             <Select
-              value={selectedClientId}
-              onValueChange={setSelectedClientId}
+              value={selectedClientId || "no-client"}
+              onValueChange={(value) => setSelectedClientId(value === "no-client" ? "" : value)}
               disabled={isLoading || clientsLoading}
             >
               <SelectTrigger id="client">
                 <SelectValue placeholder="Selecione um cliente..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Sem cliente</SelectItem>
+                <SelectItem value="no-client">Sem cliente</SelectItem>
                 {clients.map((client) => (
                   <SelectItem key={client.id} value={client.id}>
                     {client.name}
