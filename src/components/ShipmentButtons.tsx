@@ -2,21 +2,18 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { MessageCircle, Send, Loader2, Share2 } from 'lucide-react';
+import { MessageCircle, Loader2 } from 'lucide-react';
 import { DadosImportacao, ResultadosCalculados } from '@/pages/Index';
 import { generateAndUploadPDF } from '@/utils/pdfStorage';
 import { 
   generateShipmentWhatsAppMessage, 
-  generateShipmentEmailSubject, 
-  generateShipmentEmailBody,
   generateShipmentSummary,
   validateShipmentData,
   ShipmentTemplateData
 } from '@/utils/shipmentTemplates';
 import {
   formatPhoneForWhatsApp,
-  isValidPhoneForWhatsApp,
-  isValidEmail
+  isValidPhoneForWhatsApp
 } from '@/utils/contact';
 import { logShipment, hasRecentShipment } from '@/utils/shipmentLogger';
 
@@ -181,81 +178,6 @@ export const ShipmentButtons = ({
     }
   };
 
-  const handleEmailShipment = async () => {
-    if (!hasValidEmail || loading) return;
-
-    setLoading('email');
-    
-    try {
-      // Verificar se já foi enviado recentemente
-      const recentShipment = await hasRecentShipment(calculationId, 'email', 5);
-      if (recentShipment) {
-        toast({
-          title: 'Envio recente detectado',
-          description: 'Este orçamento já foi enviado via email nos últimos 5 minutos.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      // Gerar PDF e dados do template
-      const templateData = await generatePDFAndTemplateData();
-      if (!templateData) return;
-
-      // Gerar conteúdo do email
-      const subject = generateShipmentEmailSubject(client.name, calculationName);
-      const body = generateShipmentEmailBody(templateData);
-      
-      // Log do envio (status pending)
-      const logRecord = await logShipment({
-        calculationId,
-        clientId: client.id,
-        channel: 'email',
-        status: 'pending',
-        pdfUrl: templateData.pdfUrl,
-        summary: generateShipmentSummary(templateData)
-      });
-
-      // Abrir cliente de email
-      const encodedSubject = encodeURIComponent(subject);
-      const encodedBody = encodeURIComponent(body);
-      const emailUrl = `mailto:${client.email}?subject=${encodedSubject}&body=${encodedBody}`;
-      
-      window.location.href = emailUrl;
-
-      // Assumir sucesso (não temos como verificar se o usuário realmente enviou)
-      if (logRecord) {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Delay para simular envio
-      }
-
-      toast({
-        title: 'Email preparado',
-        description: `Cliente de email aberto para ${client.name}. Complete o envio no seu cliente de email.`,
-      });
-
-    } catch (error: any) {
-      console.error('Erro ao enviar via email:', error);
-      
-      // Log do erro
-      await logShipment({
-        calculationId,
-        clientId: client.id,
-        channel: 'email',
-        status: 'failed',
-        pdfUrl: '',
-        summary: `Falha no envio para ${client.name}`,
-        errorMessage: error.message
-      });
-
-      toast({
-        title: 'Erro no email',
-        description: error.message || 'Não foi possível preparar o envio',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(null);
-    }
-  };
 
   return (
     <div className={`flex gap-1 ${className}`}>
@@ -275,25 +197,6 @@ export const ShipmentButtons = ({
             <MessageCircle className="w-3 h-3" />
           )}
           {size !== 'sm' && <span className="ml-1">WhatsApp</span>}
-        </Button>
-      )}
-      
-      {/* Botão Email */}
-      {hasValidEmail && (
-        <Button
-          size={size}
-          variant="outline"
-          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
-          onClick={handleEmailShipment}
-          disabled={loading !== null}
-          title={`Enviar orçamento via email para ${client.name}`}
-        >
-          {loading === 'email' ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          ) : (
-            <Send className="w-3 h-3" />
-          )}
-          {size !== 'sm' && <span className="ml-1">Email</span>}
         </Button>
       )}
     </div>
