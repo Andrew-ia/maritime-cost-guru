@@ -6,6 +6,8 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calculator, DollarSign, Ship, FileText, Settings, Package } from "lucide-react";
 import { InputMonetario } from "@/components/InputMonetario";
+import { ExchangeRateButton } from "@/components/ExchangeRateButton";
+import { QuickTemplates } from "@/components/QuickTemplates";
 import { DadosImportacao } from "@/pages/Index";
 import { useToast } from "@/hooks/use-toast";
 
@@ -83,12 +85,25 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
     }
   };
 
-  const atualizarCampo = (campo: keyof DadosImportacao, valor: any) => {
+  const atualizarCampo = (campo: keyof DadosImportacao, valor: string | number) => {
     setDados(prev => ({ ...prev, [campo]: valor }));
+  };
+
+  const aplicarTemplate = (templateData: Partial<DadosImportacao>) => {
+    setDados(prev => ({ ...prev, ...templateData }));
+    toast({ 
+      title: "Template aplicado", 
+      description: "Os campos foram preenchidos com valores padrão. Ajuste conforme necessário." 
+    });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Templates Rápidos */}
+      <QuickTemplates onApplyTemplate={aplicarTemplate} />
+      
+      <Separator />
+
       {/* Dados do Produto */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
@@ -215,7 +230,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
           <h3 className="font-semibold">Moeda e Câmbio</h3>
         </div>
         
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
           <div>
             <Label htmlFor="cotacao">Cotação USD/BRL</Label>
             <InputMonetario
@@ -225,6 +240,12 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               placeholder="0"
               prefix="R$ "
               decimals={4}
+            />
+          </div>
+          <div>
+            <ExchangeRateButton 
+              currentRate={dados.cotacao_usd}
+              onRateUpdate={(newRate) => atualizarCampo('cotacao_usd', newRate)}
             />
           </div>
         </div>
