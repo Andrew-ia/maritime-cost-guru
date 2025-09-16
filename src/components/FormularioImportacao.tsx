@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calculator, DollarSign, Ship, FileText, Settings, Package } from "lucide-react";
 import { InputMonetario } from "@/components/InputMonetario";
 import { DadosImportacao } from "@/pages/Index";
@@ -97,45 +99,43 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <Label htmlFor="incoterm">Incoterm</Label>
-            <select
-              id="incoterm"
-              value={dados.incoterm}
-              onChange={(e) => atualizarCampo('incoterm', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
-            >
-              <option value="FOB">FOB</option>
-              <option value="CIF">CIF</option>
-              <option value="EXW">EXW</option>
-              <option value="FCA">FCA</option>
-              <option value="CPT">CPT</option>
-              <option value="CIP">CIP</option>
-              <option value="DAP">DAP</option>
-              <option value="DPU">DPU</option>
-              <option value="DDP">DDP</option>
-            </select>
+            <Select value={dados.incoterm} onValueChange={(value) => atualizarCampo('incoterm', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o Incoterm" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="FOB">FOB</SelectItem>
+                <SelectItem value="CIF">CIF</SelectItem>
+                <SelectItem value="EXW">EXW</SelectItem>
+                <SelectItem value="FCA">FCA</SelectItem>
+                <SelectItem value="CPT">CPT</SelectItem>
+                <SelectItem value="CIP">CIP</SelectItem>
+                <SelectItem value="DAP">DAP</SelectItem>
+                <SelectItem value="DPU">DPU</SelectItem>
+                <SelectItem value="DDP">DDP</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           <div>
             <Label htmlFor="origem">Origem</Label>
-            <input
+            <Input
               id="origem"
               type="text"
               value={dados.origem}
               onChange={(e) => atualizarCampo('origem', e.target.value)}
               placeholder="Porto de origem"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
             />
           </div>
           
           <div>
             <Label htmlFor="destino">Destino</Label>
-            <input
+            <Input
               id="destino"
               type="text"
               value={dados.destino}
               onChange={(e) => atualizarCampo('destino', e.target.value)}
               placeholder="Porto de destino"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
             />
           </div>
         </div>
@@ -143,20 +143,20 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <Label htmlFor="container">Container</Label>
-            <select
-              id="container"
-              value={dados.container}
-              onChange={(e) => atualizarCampo('container', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
-            >
-              <option value="">Selecione o tipo</option>
-              <option value="20'">20'</option>
-              <option value="40'">40'</option>
-              <option value="LCL">LCL</option>
-              <option value="RORO">RORO</option>
-              <option value="Open Top">Open Top</option>
-              <option value="Flat Rack">Flat Rack</option>
-            </select>
+            <Select value={dados.container || ""} onValueChange={(value) => atualizarCampo('container', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Selecione o tipo</SelectItem>
+                <SelectItem value="20'">20'</SelectItem>
+                <SelectItem value="40'">40'</SelectItem>
+                <SelectItem value="LCL">LCL</SelectItem>
+                <SelectItem value="RORO">RORO</SelectItem>
+                <SelectItem value="Open Top">Open Top</SelectItem>
+                <SelectItem value="Flat Rack">Flat Rack</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           <div>
@@ -185,25 +185,23 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="produto">Produto</Label>
-            <input
+            <Input
               id="produto"
               type="text"
               value={dados.produto}
               onChange={(e) => atualizarCampo('produto', e.target.value)}
               placeholder="Descrição do produto"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
             />
           </div>
           
           <div>
             <Label htmlFor="ncm">NCM</Label>
-            <input
+            <Input
               id="ncm"
               type="text"
               value={dados.ncm}
               onChange={(e) => atualizarCampo('ncm', e.target.value)}
               placeholder="0000.00.00"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
             />
           </div>
         </div>
