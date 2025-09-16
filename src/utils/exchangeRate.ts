@@ -33,7 +33,7 @@ export async function fetchUSDToBRLRate(): Promise<{ rate: number; lastUpdated: 
     
     return {
       rate: data.rates.BRL,
-      lastUpdated: data.date
+      lastUpdated: data.date // Data da cotação (formato YYYY-MM-DD)
     };
   } catch (error) {
     console.error('Erro ao buscar cotação USD/BRL:', error);
@@ -89,6 +89,26 @@ export function formatLastUpdated(dateString: string): string {
   try {
     const date = new Date(dateString);
     const now = new Date();
+    
+    // Se a data é apenas YYYY-MM-DD (sem horário), tratar como cotação do dia
+    if (dateString.length === 10) {
+      const today = now.toISOString().split('T')[0];
+      if (dateString === today) {
+        return 'hoje';
+      } else {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        
+        if (dateString === yesterdayStr) {
+          return 'ontem';
+        } else {
+          return `em ${date.toLocaleDateString('pt-BR')}`;
+        }
+      }
+    }
+    
+    // Se tem horário específico, calcular diferença
     const diffMs = now.getTime() - date.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
