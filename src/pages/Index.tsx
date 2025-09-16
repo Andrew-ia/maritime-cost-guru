@@ -205,7 +205,6 @@ const Index = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Pré-Custo Importação Marítima</h1>
-                <p className="text-maritime-accent/90">Calcule todos os impostos e custos de importação</p>
               </div>
             </div>
             
