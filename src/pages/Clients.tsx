@@ -42,7 +42,9 @@ import {
   FileText,
   Calculator,
   ArrowLeft,
-  Home
+  Home,
+  User,
+  Crown
 } from 'lucide-react';
 
 export interface Client {
@@ -56,6 +58,8 @@ export interface Client {
   notes?: string;
   created_at: string;
   updated_at: string;
+  owner_email?: string;
+  is_own_client?: boolean;
 }
 
 export default function Clients() {
@@ -87,13 +91,18 @@ export default function Clients() {
 
   const fetchClients = async () => {
     try {
-      const { data, error } = await supabase
-        .from('clients')
-        .select('*')
-        .order('name', { ascending: true });
+      // Usar a função SQL para buscar clientes com dados do proprietário
+      const { data, error } = await supabase.rpc('get_clients_with_owners');
 
       if (error) throw error;
-      setClients(data || []);
+
+      // Processar dados para adicionar flag is_own_client
+      const processedData = (data || []).map((client: any) => ({
+        ...client,
+        is_own_client: client.user_id === user?.id
+      }));
+
+      setClients(processedData);
     } catch (error: any) {
       console.error('Erro ao buscar clientes:', error);
       toast({
@@ -295,7 +304,7 @@ export default function Clients() {
           <h1 className="text-3xl font-bold">Clientes</h1>
         </div>
         <p className="text-muted-foreground">
-          Gerencie seus clientes e associe orçamentos a eles
+          Clientes compartilhados da equipe - todos podem visualizar, apenas o proprietário pode editar
         </p>
       </div>
 
@@ -450,15 +459,39 @@ export default function Clients() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredClients.map((client) => (
-            <Card key={client.id} className="hover:shadow-lg transition-shadow">
+            <Card 
+              key={client.id} 
+              className={`hover:shadow-lg transition-shadow ${
+                client.is_own_client 
+                  ? 'border-primary/50 bg-primary/5' 
+                  : 'border-border'
+              }`}
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg line-clamp-1">
-                      {client.name}
-                    </CardTitle>
+                    <div className="flex items-center gap-2 mb-1">
+                      <CardTitle className="text-lg line-clamp-1">
+                        {client.name}
+                      </CardTitle>
+                      {client.is_own_client && (
+                        <Crown className="w-4 h-4 text-primary flex-shrink-0" title="Seu cliente" />
+                      )}
+                    </div>
+                    
+                    {/* Mostrar proprietário */}
+                    <div className="flex items-center gap-1 mb-2">
+                      <User className="w-3 h-3" />
+                      <span className={`text-xs ${client.is_own_client ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
+                        {client.is_own_client 
+                          ? 'Você' 
+                          : client.owner_email?.split('@')[0] || 'Desconhecido'
+                        }
+                      </span>
+                    </div>
+                    
                     {client.document && (
-                      <CardDescription className="text-sm mt-1">
+                      <CardDescription className="text-sm">
                         {formatDocument(client.document)}
                       </CardDescription>
                     )}
@@ -498,49 +531,76 @@ export default function Clients() {
                 </div>
                 
                 <div className="flex gap-2 mt-4">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => handleEdit(client)}
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Editar
-                  </Button>
+                  {/* Editar apenas para próprios clientes */}
+                  {client.is_own_client ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => handleEdit(client)}
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Editar
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1 opacity-50 cursor-not-allowed"
+                      disabled
+                      title="Apenas o proprietário pode editar este cliente"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Editar
+                    </Button>
+                  )}
                   
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        disabled={deletingId === client.id}
-                      >
-                        {deletingId === client.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Excluir cliente</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Tem certeza que deseja excluir "{client.name}"? 
-                          Os orçamentos associados a este cliente não serão excluídos, mas ficarão sem cliente vinculado.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(client.id)}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  {/* Excluir apenas para próprios clientes */}
+                  {client.is_own_client ? (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          disabled={deletingId === client.id}
                         >
-                          Excluir
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                          {deletingId === client.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Excluir cliente</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tem certeza que deseja excluir "{client.name}"? 
+                            Os orçamentos associados a este cliente não serão excluídos, mas ficarão sem cliente vinculado.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(client.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  ) : (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      disabled
+                      title="Apenas o proprietário pode excluir este cliente"
+                      className="opacity-50 cursor-not-allowed"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
