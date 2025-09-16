@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calculator, DollarSign, Ship, FileText, Settings, Package } from "lucide-react";
 import { InputMonetario } from "@/components/InputMonetario";
 import { ExchangeRateButton } from "@/components/ExchangeRateButton";
-import { QuickTemplates } from "@/components/QuickTemplates";
+import { QuickTemplateDropdown } from "@/components/QuickTemplateDropdown";
 import { DadosImportacao } from "@/pages/Index";
 import { useToast } from "@/hooks/use-toast";
 
@@ -99,8 +99,14 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Templates Rápidos */}
-      <QuickTemplates onApplyTemplate={aplicarTemplate} />
+      {/* Header com Templates */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Dados da Importação</h2>
+          <p className="text-sm text-muted-foreground">Preencha os dados para calcular os custos</p>
+        </div>
+        <QuickTemplateDropdown onApplyTemplate={aplicarTemplate} />
+      </div>
       
       <Separator />
 
