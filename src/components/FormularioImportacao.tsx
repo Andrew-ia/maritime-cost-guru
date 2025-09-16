@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Calculator, DollarSign, Ship, FileText, Settings } from "lucide-react";
+import { Calculator, DollarSign, Ship, FileText, Settings, Package } from "lucide-react";
 import { InputMonetario } from "@/components/InputMonetario";
 import { TabelaDespesas } from "@/components/TabelaDespesas";
 import { DadosImportacao } from "@/pages/Index";
@@ -16,6 +16,16 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
   const { toast } = useToast();
   
   const [dados, setDados] = useState<DadosImportacao>({
+    // Dados do Produto
+    incoterm: 'FOB',
+    origem: '',
+    destino: '',
+    container: '',
+    peso_bruto: 0,
+    produto: '',
+    ncm: '',
+    quantidade: 1,
+    // Dados Financeiros
     cotacao_usd: 0,
     valor_fob: 0,
     frete_internacional: 0,
@@ -63,12 +73,130 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
     }
   };
 
-  const atualizarCampo = (campo: keyof DadosImportacao, valor: number | Array<{descricao: string; valor: number; moeda: 'BRL' | 'USD'}>) => {
+  const atualizarCampo = (campo: keyof DadosImportacao, valor: any) => {
     setDados(prev => ({ ...prev, [campo]: valor }));
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Dados do Produto */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <FileText className="w-4 h-4 text-maritime-light" />
+          <h3 className="font-semibold">Dados do Produto</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <Label htmlFor="incoterm">Incoterm</Label>
+            <select
+              id="incoterm"
+              value={dados.incoterm}
+              onChange={(e) => atualizarCampo('incoterm', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
+            >
+              <option value="FOB">FOB</option>
+              <option value="CIF">CIF</option>
+              <option value="EXW">EXW</option>
+              <option value="FCA">FCA</option>
+              <option value="CPT">CPT</option>
+              <option value="CIP">CIP</option>
+              <option value="DAP">DAP</option>
+              <option value="DPU">DPU</option>
+              <option value="DDP">DDP</option>
+            </select>
+          </div>
+          
+          <div>
+            <Label htmlFor="origem">Origem</Label>
+            <input
+              id="origem"
+              type="text"
+              value={dados.origem}
+              onChange={(e) => atualizarCampo('origem', e.target.value)}
+              placeholder="Porto de origem"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="destino">Destino</Label>
+            <input
+              id="destino"
+              type="text"
+              value={dados.destino}
+              onChange={(e) => atualizarCampo('destino', e.target.value)}
+              placeholder="Porto de destino"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <Label htmlFor="container">Container</Label>
+            <input
+              id="container"
+              type="text"
+              value={dados.container}
+              onChange={(e) => atualizarCampo('container', e.target.value)}
+              placeholder="Ex: 20', 40', 40'HC"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="peso_bruto">Peso Bruto (kg)</Label>
+            <InputMonetario
+              id="peso_bruto"
+              value={dados.peso_bruto || 0}
+              onChange={(valor) => atualizarCampo('peso_bruto', valor)}
+              placeholder="0"
+              decimals={3}
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="quantidade">Quantidade</Label>
+            <InputMonetario
+              id="quantidade"
+              value={dados.quantidade || 1}
+              onChange={(valor) => atualizarCampo('quantidade', valor)}
+              placeholder="1"
+              decimals={0}
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="produto">Produto</Label>
+            <input
+              id="produto"
+              type="text"
+              value={dados.produto}
+              onChange={(e) => atualizarCampo('produto', e.target.value)}
+              placeholder="Descrição do produto"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="ncm">NCM</Label>
+            <input
+              id="ncm"
+              type="text"
+              value={dados.ncm}
+              onChange={(e) => atualizarCampo('ncm', e.target.value)}
+              placeholder="0000.00.00"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-maritime-light"
+            />
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
       {/* Moeda e Câmbio */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">

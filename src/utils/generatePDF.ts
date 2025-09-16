@@ -16,10 +16,10 @@ export const generatePDF = (dados: DadosImportacao, resultados: ResultadosCalcul
   const contentWidth = pageWidth - (margin * 2);
   
   // Cores do sistema
-  const primaryColor = [33, 90, 154];
-  const secondaryColor = [52, 152, 219];
-  const successColor = [46, 125, 50];
-  const lightGray = [248, 249, 250];
+  const primaryColor: [number, number, number] = [33, 90, 154];
+  const secondaryColor: [number, number, number] = [52, 152, 219];
+  const successColor: [number, number, number] = [46, 125, 50];
+  const lightGray: [number, number, number] = [248, 249, 250];
   
   let yPos = margin;
   
@@ -37,22 +37,46 @@ export const generatePDF = (dados: DadosImportacao, resultados: ResultadosCalcul
   
   // CABEÇALHO COMPACTO
   doc.setFillColor(...primaryColor);
-  doc.rect(0, 0, pageWidth, 18, 'F');
+  doc.rect(0, 0, pageWidth, 30, 'F');
   
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  doc.text('Pré-Custo Importação Marítima', pageWidth / 2, 8, { align: 'center' });
+  doc.text('PRÉ-CUSTO IMPORTAÇÃO MARÍTIMA', pageWidth / 2, 8, { align: 'center' });
   
+  // Dados do Header em formato de tabela
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text('Cálculo detalhado de impostos e custos', pageWidth / 2, 13, { align: 'center' });
   
-  doc.setFontSize(7);
-  doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, margin, 16);
-  doc.text(`Câmbio: R$ ${dados.cotacao_usd.toFixed(4)}`, pageWidth - margin - 25, 16);
+  // Primeira linha do header
+  const col1X = margin;
+  const col2X = 50;
+  const col3X = 110;
   
-  yPos = 24;
+  doc.text(`Incoterm: ${dados.incoterm || 'FOB'}`, col1X, 16);
+  doc.text(`Container: ${dados.container || '-'}`, col2X, 16);
+  doc.text(`Produto: ${dados.produto || '-'}`, col3X, 16);
+  
+  // Segunda linha do header
+  doc.text(`Origem: ${dados.origem || '-'}`, col1X, 21);
+  doc.text(`Peso Bruto: ${dados.peso_bruto ? dados.peso_bruto.toLocaleString('pt-BR') + ' kg' : '-'}`, col2X, 21);
+  doc.text(`NCM: ${dados.ncm || '-'}`, col3X, 21);
+  
+  // Terceira linha do header
+  doc.text(`Destino: ${dados.destino || '-'}`, col1X, 26);
+  doc.text(`Preço FOB: ${formatCurrency(dados.valor_fob, 'USD')}`, col2X, 26);
+  doc.text(`Quantidade: ${dados.quantidade || 1}`, col3X, 26);
+  
+  // Câmbio e Data
+  doc.setFillColor(...secondaryColor);
+  doc.rect(0, 30, pageWidth, 8, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Câmbio (USD): R$ ${dados.cotacao_usd.toFixed(4)}`, margin, 35);
+  doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, pageWidth - margin - 25, 35);
+  
+  yPos = 42;
   
   // CONFIGURAÇÃO PADRÃO PARA TODAS AS TABELAS
   const standardTableConfig = {
@@ -61,14 +85,14 @@ export const generatePDF = (dados: DadosImportacao, resultados: ResultadosCalcul
     styles: { 
       fontSize: 7,
       cellPadding: 1.5,
-      lineColor: [220, 220, 220],
+      lineColor: [220, 220, 220] as [number, number, number],
       lineWidth: 0.1
     },
     headStyles: { 
       fillColor: primaryColor,
-      textColor: [255, 255, 255],
+      textColor: [255, 255, 255] as [number, number, number],
       fontSize: 7,
-      fontStyle: 'bold'
+      fontStyle: 'bold' as const
     },
     theme: 'striped' as const,
     alternateRowStyles: { fillColor: lightGray }

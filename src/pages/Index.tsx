@@ -8,6 +8,17 @@ import { UserMenu } from "@/components/UserMenu";
 import { useNavigate } from "react-router-dom";
 
 export interface DadosImportacao {
+  // Dados do Produto
+  incoterm?: string;
+  origem?: string;
+  destino?: string;
+  container?: string;
+  peso_bruto?: number;
+  produto?: string;
+  ncm?: string;
+  quantidade?: number;
+  
+  // Dados Financeiros
   cotacao_usd: number;
   valor_fob: number;
   frete_internacional: number;
