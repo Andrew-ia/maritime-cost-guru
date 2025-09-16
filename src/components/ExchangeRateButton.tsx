@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -15,7 +15,32 @@ export const ExchangeRateButton = ({ currentRate, onRateUpdate, className = '' }
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string>('');
   const [rateChange, setRateChange] = useState<'up' | 'down' | null>(null);
+  const [hasLoadedInitially, setHasLoadedInitially] = useState(false);
   const { toast } = useToast();
+
+  // Carregar cotação automaticamente quando o componente carrega
+  useEffect(() => {
+    if (!hasLoadedInitially && currentRate === 0) {
+      loadInitialRate();
+    }
+  }, [hasLoadedInitially, currentRate]);
+
+  const loadInitialRate = async () => {
+    try {
+      setLoading(true);
+      const rateData = await getCachedUSDToBRLRate();
+      
+      if (!rateData.error && rateData.rate > 0) {
+        onRateUpdate(rateData.rate);
+        setLastUpdated(rateData.lastUpdated);
+        setHasLoadedInitially(true);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar cotação inicial:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleUpdateRate = async () => {
     setLoading(true);
@@ -70,6 +95,41 @@ export const ExchangeRateButton = ({ currentRate, onRateUpdate, className = '' }
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
+      {/* Cotação Atual Destacada */}
+      {currentRate > 0 && (
+        <div className="flex items-center gap-2 p-2 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <DollarSign className="w-4 h-4 text-blue-600" />
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">USD/BRL:</span>
+              <span className="font-bold text-blue-600">R$ {formatExchangeRate(currentRate)}</span>
+              {rateChange && (
+                <Badge 
+                  variant="secondary"
+                  className={`text-xs gap-1 ${
+                    rateChange === 'up' 
+                      ? 'bg-green-100 text-green-700 border-green-200' 
+                      : 'bg-red-100 text-red-700 border-red-200'
+                  }`}
+                >
+                  {rateChange === 'up' ? (
+                    <TrendingUp className="w-3 h-3" />
+                  ) : (
+                    <TrendingDown className="w-3 h-3" />
+                  )}
+                  {rateChange === 'up' ? 'Subiu' : 'Desceu'}
+                </Badge>
+              )}
+            </div>
+            {lastUpdated && (
+              <div className="text-xs text-muted-foreground">
+                Atualizada {formatLastUpdated(lastUpdated)}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <Button
         type="button"
         variant="outline"
@@ -81,41 +141,6 @@ export const ExchangeRateButton = ({ currentRate, onRateUpdate, className = '' }
         <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
         {loading ? 'Atualizando...' : 'Atualizar Cotação'}
       </Button>
-      
-      {/* Indicadores de Status */}
-      <div className="flex items-center gap-2 text-xs">
-        {/* Indicador de tendência */}
-        {rateChange && (
-          <Badge 
-            variant={rateChange === 'up' ? 'default' : 'secondary'}
-            className={`gap-1 ${
-              rateChange === 'up' 
-                ? 'bg-green-100 text-green-700 border-green-200' 
-                : 'bg-red-100 text-red-700 border-red-200'
-            }`}
-          >
-            {rateChange === 'up' ? (
-              <TrendingUp className="w-3 h-3" />
-            ) : (
-              <TrendingDown className="w-3 h-3" />
-            )}
-            {rateChange === 'up' ? 'Subiu' : 'Desceu'}
-          </Badge>
-        )}
-        
-        {/* Taxa atual */}
-        <div className="flex items-center gap-1 text-muted-foreground">
-          <DollarSign className="w-3 h-3" />
-          <span>R$ {formatExchangeRate(currentRate)}</span>
-        </div>
-        
-        {/* Última atualização */}
-        {lastUpdated && (
-          <span className="text-muted-foreground">
-            {formatLastUpdated(lastUpdated)}
-          </span>
-        )}
-      </div>
     </div>
   );
 };
