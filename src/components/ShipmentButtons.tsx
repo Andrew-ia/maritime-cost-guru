@@ -56,10 +56,18 @@ export const ShipmentButtons = ({
   }
 
   const hasValidPhone = isValidPhoneForWhatsApp(client.phone || '');
-  const hasValidEmail = isValidEmail(client.email || '');
+  
+  // Debug: verificar dados do cliente
+  console.log('ShipmentButtons Debug:', {
+    clientName: client.name,
+    clientPhone: client.phone,
+    hasValidPhone,
+    calculationId
+  });
 
-  // Se não tem nem telefone nem email válidos, não renderiza nada
-  if (!hasValidPhone && !hasValidEmail) {
+  // Se não tem telefone válido, não renderiza nada
+  if (!hasValidPhone) {
+    console.log('ShipmentButtons: Não renderizando - telefone inválido');
     return null;
   }
 
