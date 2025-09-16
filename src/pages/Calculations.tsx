@@ -21,7 +21,6 @@ import {
 import { History, Trash2, Download, Eye, Loader2, Calculator, DollarSign, Building, ArrowLeft, Home, User, Crown } from 'lucide-react';
 import { generatePDF } from '@/utils/generatePDF';
 import { DadosImportacao, ResultadosCalculados } from '@/pages/Index';
-import ShipmentButtons from '@/components/ShipmentButtons';
 
 interface CalculationRecord {
   id: string;
@@ -342,24 +341,6 @@ export default function Calculations() {
                   </div>
                   
                   <Separator />
-                  
-                  {/* Botões de envio de orçamento (apenas se tem cliente) */}
-                  {calculation.client && (
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs text-muted-foreground font-medium">Enviar orçamento:</span>
-                      <ShipmentButtons
-                        calculationId={calculation.id}
-                        calculationName={calculation.calculation_name}
-                        client={calculation.client}
-                        dados={calculation.calculation_data.dados}
-                        resultados={calculation.calculation_data.resultados}
-                        userName={calculation.is_own_calculation ? 'Você' : calculation.author?.email?.split('@')[0]}
-                        size="sm"
-                      />
-                    </div>
-                  )}
-                  
-                  {calculation.client && <Separator />}
                   
                   <div className="flex gap-2">
                     <Button
