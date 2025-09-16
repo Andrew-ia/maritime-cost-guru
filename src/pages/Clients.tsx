@@ -47,7 +47,6 @@ import {
   Crown
 } from 'lucide-react';
 import { ContactButtons } from '@/components/ContactButtons';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 export interface Client {
   id: string;
@@ -321,9 +320,7 @@ export default function Clients() {
             className="pl-10"
           />
         </div>
-        <div className="flex gap-2">
-          <ThemeToggle />
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={handleNewClient}>
                 <Plus className="w-4 h-4 mr-2" />
@@ -434,8 +431,7 @@ export default function Clients() {
               </DialogFooter>
             </form>
           </DialogContent>
-          </Dialog>
-        </div>
+        </Dialog>
       </div>
 
       {/* Clients List */}

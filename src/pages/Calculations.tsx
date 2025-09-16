@@ -22,7 +22,6 @@ import { History, Trash2, Download, Eye, Loader2, Calculator, DollarSign, Buildi
 import { generatePDF } from '@/utils/generatePDF';
 import { DadosImportacao, ResultadosCalculados } from '@/pages/Index';
 import ShipmentButtons from '@/components/ShipmentButtons';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface CalculationRecord {
   id: string;
@@ -213,11 +212,9 @@ export default function Calculations() {
             </div>
           </div>
           
-          {/* Filtro por autor e Theme Toggle */}
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Mostrar:</span>
+          {/* Filtro por autor */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Mostrar:</span>
             <Select value={authorFilter} onValueChange={setAuthorFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue />
@@ -234,7 +231,6 @@ export default function Calculations() {
                 </SelectItem>
               </SelectContent>
             </Select>
-            </div>
           </div>
         </div>
       </div>
