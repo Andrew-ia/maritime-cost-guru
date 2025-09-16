@@ -98,8 +98,9 @@ export const isValidPhoneForWhatsApp = (phone: string): boolean => {
   if (!phone) return false;
   
   const cleanPhone = phone.replace(/\D/g, '');
-  // Telefone brasileiro deve ter pelo menos 10 dígitos (DDD + número)
-  return cleanPhone.length >= 10;
+  // Telefone brasileiro: 10 dígitos (DDD + 8) ou 11 dígitos (DDD + 9)
+  // Exemplos: 1199999999 (10) ou 11999999999 (11)
+  return cleanPhone.length >= 10 && cleanPhone.length <= 11;
 };
 
 /**

@@ -48,8 +48,8 @@ export const ContactButtons = ({
     openEmail(email, subject, body);
   };
 
-  // Se não tem nem telefone nem email válidos, não renderiza nada
-  if (!isValidPhoneForWhatsApp(phone || '') && !isValidEmail(email || '')) {
+  // Se não tem telefone válido, não renderiza nada
+  if (!isValidPhoneForWhatsApp(phone || '')) {
     return null;
   }
 
@@ -65,19 +65,6 @@ export const ContactButtons = ({
           title={`Enviar WhatsApp para ${clientName}`}
         >
           <MessageCircle className="w-3 h-3" />
-        </Button>
-      )}
-      
-      {/* Botão Email */}
-      {isValidEmail(email || '') && (
-        <Button
-          size={size}
-          variant="outline"
-          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
-          onClick={handleEmailClick}
-          title={`Enviar email para ${clientName}`}
-        >
-          <Send className="w-3 h-3" />
         </Button>
       )}
     </div>
