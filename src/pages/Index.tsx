@@ -5,6 +5,7 @@ import { ResultadosCalculos } from "@/components/ResultadosCalculos";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/UserMenu";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 
 export interface DadosImportacao {
@@ -231,6 +232,7 @@ const Index = () => {
                 </Button>
               </nav>
               
+              <ThemeToggle variant="ghost" className="text-white hover:bg-white/20" />
               <UserMenu />
             </div>
           </div>
