@@ -46,6 +46,7 @@ import {
   User,
   Crown
 } from 'lucide-react';
+import { ContactButtons } from '@/components/ContactButtons';
 
 export interface Client {
   id: string;
@@ -502,16 +503,32 @@ export default function Clients() {
               <CardContent className="pt-0">
                 <div className="space-y-2 text-sm">
                   {client.email && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Mail className="w-4 h-4" />
-                      <span className="truncate">{client.email}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Mail className="w-4 h-4" />
+                        <span className="truncate">{client.email}</span>
+                      </div>
                     </div>
                   )}
                   
                   {client.phone && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Phone className="w-4 h-4" />
-                      <span>{client.phone}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Phone className="w-4 h-4" />
+                        <span>{client.phone}</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Botões de Contato */}
+                  {(client.phone || client.email) && (
+                    <div className="flex justify-end pt-1">
+                      <ContactButtons 
+                        clientName={client.name}
+                        phone={client.phone}
+                        email={client.email}
+                        userName={user?.email?.split('@')[0]}
+                      />
                     </div>
                   )}
                   
