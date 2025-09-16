@@ -64,7 +64,7 @@ export const generatePDF = (dados: DadosImportacao, resultados: ResultadosCalcul
   
   // Terceira linha do header
   doc.text(`Destino: ${dados.destino || '-'}`, col1X, 26);
-  doc.text(`Preço FOB: ${formatCurrency(dados.valor_fob, 'USD')}`, col2X, 26);
+  doc.text(`Preço ${dados.incoterm || 'FOB'}: ${formatCurrency(dados.valor_fob, 'USD')}`, col2X, 26);
   doc.text(`Quantidade: ${dados.quantidade || 1}`, col3X, 26);
   
   // Câmbio e Data
@@ -105,14 +105,28 @@ export const generatePDF = (dados: DadosImportacao, resultados: ResultadosCalcul
   doc.text('1. VALORES BASE', margin, yPos);
   yPos += 4;
   
+  // Construir corpo da tabela baseado no Incoterm
+  const valoresBody = [];
+  
+  // Sempre mostrar o valor principal
+  valoresBody.push([`Valor ${dados.incoterm || 'FOB'}`, formatCurrency(dados.valor_fob, 'USD'), formatCurrency(dados.valor_fob * dados.cotacao_usd)]);
+  
+  // Mostrar frete e seguro apenas se aplicável ao Incoterm
+  const incotermsSemFrete = ['CIF', 'CIP', 'CPT', 'DAP', 'DPU', 'DDP'];
+  const incotermsSemSeguro = ['CIF', 'CIP', 'DAP', 'DPU', 'DDP'];
+  
+  if (!incotermsSemFrete.includes(dados.incoterm || 'FOB')) {
+    valoresBody.push(['Frete Internacional', formatCurrency(dados.frete_internacional, 'USD'), formatCurrency(dados.frete_internacional * dados.cotacao_usd)]);
+  }
+  
+  if (!incotermsSemSeguro.includes(dados.incoterm || 'FOB')) {
+    valoresBody.push(['Seguro Internacional', formatCurrency(dados.seguro_internacional, 'USD'), formatCurrency(dados.seguro_internacional * dados.cotacao_usd)]);
+  }
+  
   autoTable(doc, {
     startY: yPos,
     head: [['Descrição', 'Valor USD', 'Valor R$']],
-    body: [
-      ['Valor FOB', formatCurrency(dados.valor_fob, 'USD'), formatCurrency(dados.valor_fob * dados.cotacao_usd)],
-      ['Frete Internacional', formatCurrency(dados.frete_internacional, 'USD'), formatCurrency(dados.frete_internacional * dados.cotacao_usd)],
-      ['Seguro Internacional', formatCurrency(dados.seguro_internacional, 'USD'), formatCurrency(dados.seguro_internacional * dados.cotacao_usd)],
-    ],
+    body: valoresBody,
     foot: [['CIF TOTAL', formatCurrency(resultados.cif_usd, 'USD'), formatCurrency(resultados.cif)]],
     ...standardTableConfig,
     footStyles: {

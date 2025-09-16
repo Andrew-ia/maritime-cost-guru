@@ -238,7 +238,7 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="fob">Valor FOB</Label>
+            <Label htmlFor="fob">Valor {dados.incoterm || 'FOB'}</Label>
             <InputMonetario
               id="fob"
               value={dados.valor_fob}
@@ -247,26 +247,33 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               prefix="$ "
             />
           </div>
-          <div>
-            <Label htmlFor="frete">Frete Internacional</Label>
-            <InputMonetario
-              id="frete"
-              value={dados.frete_internacional}
-              onChange={(valor) => atualizarCampo('frete_internacional', valor)}
-              placeholder="0"
-              prefix="$ "
-            />
-          </div>
-          <div>
-            <Label htmlFor="seguro">Seguro Internacional</Label>
-            <InputMonetario
-              id="seguro"
-              value={dados.seguro_internacional}
-              onChange={(valor) => atualizarCampo('seguro_internacional', valor)}
-              placeholder="0"
-              prefix="$ "
-            />
-          </div>
+          {/* Mostrar Frete apenas se necessário para o Incoterm */}
+          {!['CIF', 'CIP', 'CPT', 'DAP', 'DPU', 'DDP'].includes(dados.incoterm || 'FOB') && (
+            <div>
+              <Label htmlFor="frete">Frete Internacional</Label>
+              <InputMonetario
+                id="frete"
+                value={dados.frete_internacional}
+                onChange={(valor) => atualizarCampo('frete_internacional', valor)}
+                placeholder="0"
+                prefix="$ "
+              />
+            </div>
+          )}
+          
+          {/* Mostrar Seguro apenas se necessário para o Incoterm */}
+          {!['CIF', 'CIP', 'DAP', 'DPU', 'DDP'].includes(dados.incoterm || 'FOB') && (
+            <div>
+              <Label htmlFor="seguro">Seguro Internacional</Label>
+              <InputMonetario
+                id="seguro"
+                value={dados.seguro_internacional}
+                onChange={(valor) => atualizarCampo('seguro_internacional', valor)}
+                placeholder="0"
+                prefix="$ "
+              />
+            </div>
+          )}
           <div>
             <Label htmlFor="capatazias">Capatazias (BRL)</Label>
             <InputMonetario

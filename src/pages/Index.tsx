@@ -70,8 +70,48 @@ const Index = () => {
   const navigate = useNavigate();
 
   const calcularImportacao = (dadosForm: DadosImportacao) => {
-    // 1. CIF
-    const cif = (dadosForm.valor_fob + dadosForm.frete_internacional + dadosForm.seguro_internacional) * dadosForm.cotacao_usd;
+    // 1. CIF - Cálculo baseado no Incoterm
+    let cif: number;
+    
+    switch (dadosForm.incoterm) {
+      case 'CIF':
+        // CIF: O valor já inclui custo, seguro e frete
+        cif = dadosForm.valor_fob * dadosForm.cotacao_usd;
+        break;
+      
+      case 'FOB':
+      default:
+        // FOB: Adicionar frete e seguro ao valor FOB
+        cif = (dadosForm.valor_fob + dadosForm.frete_internacional + dadosForm.seguro_internacional) * dadosForm.cotacao_usd;
+        break;
+      
+      case 'EXW':
+        // EXW: Valor ex-works + todos os custos de transporte
+        cif = (dadosForm.valor_fob + dadosForm.frete_internacional + dadosForm.seguro_internacional) * dadosForm.cotacao_usd;
+        break;
+      
+      case 'FCA':
+        // FCA: Free Carrier - similar ao FOB mas com entrega diferente
+        cif = (dadosForm.valor_fob + dadosForm.frete_internacional + dadosForm.seguro_internacional) * dadosForm.cotacao_usd;
+        break;
+      
+      case 'CPT':
+        // CPT: Carriage Paid To - frete incluído, seguro por conta do comprador
+        cif = (dadosForm.valor_fob + dadosForm.seguro_internacional) * dadosForm.cotacao_usd;
+        break;
+      
+      case 'CIP':
+        // CIP: Carriage and Insurance Paid - frete e seguro incluídos
+        cif = dadosForm.valor_fob * dadosForm.cotacao_usd;
+        break;
+      
+      case 'DAP':
+      case 'DPU':
+      case 'DDP':
+        // DAP/DPU/DDP: Delivered - custos já incluídos no valor
+        cif = dadosForm.valor_fob * dadosForm.cotacao_usd;
+        break;
+    }
     
     // 2. II
     const ii = cif * (dadosForm.aliq_ii / 100);
@@ -108,9 +148,33 @@ const Index = () => {
     // 12. CUSTO FINAL
     const custo_final = cif + total_custo_impostos;
 
+    // Calcular CIF em USD baseado no Incoterm
+    let cif_usd: number;
+    
+    switch (dadosForm.incoterm) {
+      case 'CIF':
+      case 'CIP':
+      case 'DAP':
+      case 'DPU':
+      case 'DDP':
+        cif_usd = dadosForm.valor_fob;
+        break;
+      
+      case 'CPT':
+        cif_usd = dadosForm.valor_fob + dadosForm.seguro_internacional;
+        break;
+      
+      case 'FOB':
+      case 'EXW':
+      case 'FCA':
+      default:
+        cif_usd = dadosForm.valor_fob + dadosForm.frete_internacional + dadosForm.seguro_internacional;
+        break;
+    }
+
     const resultadosCalculados = {
       cif,
-      cif_usd: dadosForm.valor_fob + dadosForm.frete_internacional + dadosForm.seguro_internacional,
+      cif_usd,
       ii,
       ipi,
       pis,
