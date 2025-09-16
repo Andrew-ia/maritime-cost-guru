@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calculator, DollarSign, Ship, FileText, Settings, Package } from "lucide-react";
 import { InputMonetario } from "@/components/InputMonetario";
-import { ExchangeRateButton } from "@/components/ExchangeRateButton";
+import { ExchangeRateCompact } from "@/components/ExchangeRateCompact";
 import { QuickTemplateDropdown } from "@/components/QuickTemplateDropdown";
 import { DadosImportacao } from "@/pages/Index";
 import { useToast } from "@/hooks/use-toast";
@@ -108,6 +108,14 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
         <QuickTemplateDropdown onApplyTemplate={aplicarTemplate} />
       </div>
       
+      <Separator />
+
+      {/* Cotação USD/BRL - Primeira coisa */}
+      <ExchangeRateCompact 
+        currentRate={dados.cotacao_usd}
+        onRateUpdate={(newRate) => atualizarCampo('cotacao_usd', newRate)}
+      />
+
       <Separator />
 
       {/* Dados do Produto */}
@@ -222,36 +230,6 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               value={dados.ncm}
               onChange={(e) => atualizarCampo('ncm', e.target.value)}
               placeholder="0000.00.00"
-            />
-          </div>
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Moeda e Câmbio */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <DollarSign className="w-4 h-4 text-maritime-light" />
-          <h3 className="font-semibold">Moeda e Câmbio</h3>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-          <div>
-            <Label htmlFor="cotacao">Cotação USD/BRL</Label>
-            <InputMonetario
-              id="cotacao"
-              value={dados.cotacao_usd}
-              onChange={(valor) => atualizarCampo('cotacao_usd', valor)}
-              placeholder="0"
-              prefix="R$ "
-              decimals={4}
-            />
-          </div>
-          <div>
-            <ExchangeRateButton 
-              currentRate={dados.cotacao_usd}
-              onRateUpdate={(newRate) => atualizarCampo('cotacao_usd', newRate)}
             />
           </div>
         </div>
