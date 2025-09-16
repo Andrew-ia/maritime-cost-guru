@@ -44,9 +44,12 @@ import {
   ArrowLeft,
   Home,
   User,
-  Crown
+  Crown,
+  History
 } from 'lucide-react';
 import { ContactButtons } from '@/components/ContactButtons';
+import { UserMenu } from '@/components/UserMenu';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export interface Client {
   id: string;
@@ -279,35 +282,70 @@ export default function Clients() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Botão Voltar e Navegação */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => window.history.back()}
-          className="gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Voltar
-        </Button>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Home className="w-4 h-4" />
-          <span>/</span>
-          <span className="text-foreground">Clientes</span>
-        </div>
-      </div>
-      
+    <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <Users className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold">Clientes</h1>
+      <header className="bg-gradient-maritime shadow-elegant">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-12 h-12 bg-white/20 rounded-xl">
+                <Users className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Clientes</h1>
+                <p className="text-white/80">Gerenciamento de clientes da equipe</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              {/* Menu de Navegação Principal */}
+              <nav className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => window.location.href = '/'}
+                  className="text-white hover:bg-white/20 gap-2"
+                >
+                  <Home className="w-4 h-4" />
+                  Dashboard
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => window.location.href = '/calculator'}
+                  className="text-white hover:bg-white/20 gap-2"
+                >
+                  <Calculator className="w-4 h-4" />
+                  Calculadora
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => window.location.href = '/calculations'}
+                  className="text-white hover:bg-white/20 gap-2"
+                >
+                  <History className="w-4 h-4" />
+                  Cálculos
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => window.location.href = '/clients'}
+                  className="text-white hover:bg-white/20 gap-2 bg-white/10"
+                >
+                  <Users className="w-4 h-4" />
+                  Clientes
+                </Button>
+              </nav>
+              
+              <ThemeToggle variant="ghost" className="text-white hover:bg-white/20" />
+              <UserMenu />
+            </div>
+          </div>
         </div>
-        <p className="text-muted-foreground">
-          Clientes compartilhados da equipe - todos podem visualizar, apenas o proprietário pode editar
-        </p>
-      </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8">
 
       {/* Search and Add Button */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -624,6 +662,7 @@ export default function Clients() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -14,7 +14,7 @@ import {
 import { 
   Calculator, Users, DollarSign, TrendingUp, Plus, 
   BarChart3, PieChart as PieChartIcon, Activity,
-  Ship, FileText, Calendar
+  Ship, FileText, Calendar, Home
 } from 'lucide-react';
 import { UserMenu } from '@/components/UserMenu';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -229,6 +229,15 @@ export default function Dashboard() {
             <div className="flex items-center gap-4">
               {/* Menu de Navegação Principal */}
               <nav className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => navigate('/')}
+                  className="text-white hover:bg-white/20 gap-2 bg-white/10"
+                >
+                  <Home className="w-4 h-4" />
+                  Dashboard
+                </Button>
                 <Button 
                   variant="ghost" 
                   size="sm"

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Ship, Calculator, TrendingUp, History, Users } from "lucide-react";
+import { Ship, Calculator, TrendingUp, History, Users, Home } from "lucide-react";
 import { FormularioImportacao } from "@/components/FormularioImportacao";
 import { ResultadosCalculos } from "@/components/ResultadosCalculos";
 import { Card, CardContent } from "@/components/ui/card";
@@ -211,6 +211,24 @@ const Index = () => {
             <div className="flex items-center gap-4">
               {/* Menu de Navegação Principal */}
               <nav className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => navigate('/')}
+                  className="text-white hover:bg-white/20 gap-2"
+                >
+                  <Home className="w-4 h-4" />
+                  Dashboard
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => navigate('/calculator')}
+                  className="text-white hover:bg-white/20 gap-2 bg-white/10"
+                >
+                  <Calculator className="w-4 h-4" />
+                  Calculadora
+                </Button>
                 <Button 
                   variant="ghost" 
                   size="sm"
