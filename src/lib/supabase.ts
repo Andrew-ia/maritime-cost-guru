@@ -6,11 +6,17 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIU
 console.log('Supabase Config:', { 
   url: supabaseUrl,
   hasKey: !!supabaseAnonKey,
-  envKeys: Object.keys(import.meta.env)
+  envKeys: Object.keys(import.meta.env),
+  env: import.meta.env.MODE
 });
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  console.error('Missing Supabase environment variables:', {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseAnonKey,
+    envMode: import.meta.env.MODE
+  });
+  throw new Error('Missing Supabase environment variables. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -18,6 +24,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    storage: localStorage,
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+  },
+  global: {
+    headers: {
+      'apikey': supabaseAnonKey,
+    },
   },
 });
