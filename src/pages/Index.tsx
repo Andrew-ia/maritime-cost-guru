@@ -38,6 +38,12 @@ export interface DadosImportacao {
   agenciamento: number;
   taxas_locais_armador_usd: number;
   taxas_locais_armador_brl: number;
+  
+  // Serviços
+  honorarios: number;
+  sdas: number;
+  emissao_li: number;
+  taxa_expediente: number;
 }
 
 export interface ResultadosCalculados {
@@ -56,6 +62,13 @@ export interface ResultadosCalculados {
     agenciamento: number;
     taxas_locais_armador_usd: number;
     taxas_locais_armador_brl: number;
+  };
+  total_servicos: number;
+  total_servicos_detalhados?: {
+    honorarios: number;
+    sdas: number;
+    emissao_li: number;
+    taxa_expediente: number;
   };
   total_custo_impostos: number;
   custo_final: number;
@@ -137,8 +150,8 @@ const Index = () => {
                           (dadosForm.taxas_locais_armador_usd * dadosForm.cotacao_usd) + 
                           dadosForm.taxas_locais_armador_brl;
     
-    // 10. TOTAL SERVIÇOS (removido - não faz parte das despesas)
-    const total_servicos = 0;
+    // 10. TOTAL SERVIÇOS
+    const total_servicos = dadosForm.honorarios + dadosForm.sdas + dadosForm.emissao_li + dadosForm.taxa_expediente;
     
     // 11. TOTAL CUSTO IMPOSTOS
     const total_custo_impostos = total_impostos + total_despesas + total_servicos;
@@ -186,6 +199,13 @@ const Index = () => {
         agenciamento: dadosForm.agenciamento,
         taxas_locais_armador_usd: dadosForm.taxas_locais_armador_usd,
         taxas_locais_armador_brl: dadosForm.taxas_locais_armador_brl
+      },
+      total_servicos,
+      total_servicos_detalhados: {
+        honorarios: dadosForm.honorarios,
+        sdas: dadosForm.sdas,
+        emissao_li: dadosForm.emissao_li,
+        taxa_expediente: dadosForm.taxa_expediente
       },
       total_custo_impostos,
       custo_final

@@ -246,6 +246,64 @@ export const ResultadosCalculos = ({ resultados, dados }: ResultadosCalculosProp
       
       <Separator />
       
+      {/* Serviços */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <FileText className="w-5 h-5 text-maritime-light" />
+          <h3 className="font-semibold">Serviços</h3>
+        </div>
+        <Card className="shadow-card">
+          <CardContent className="pt-6">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead className="text-right">Total R$</TableHead>
+                  <TableHead className="text-right">Total US$</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {resultados.total_servicos_detalhados && (
+                  <>
+                    <TableRow>
+                      <TableCell className="font-medium">Honorários</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(resultados.total_servicos_detalhados.honorarios, 'BRL')}</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(converterParaUSD(resultados.total_servicos_detalhados.honorarios), 'USD')}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">SDAS</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(resultados.total_servicos_detalhados.sdas, 'BRL')}</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(converterParaUSD(resultados.total_servicos_detalhados.sdas), 'USD')}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Emissão de LI</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(resultados.total_servicos_detalhados.emissao_li, 'BRL')}</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(converterParaUSD(resultados.total_servicos_detalhados.emissao_li), 'USD')}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Taxa de Expediente</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(resultados.total_servicos_detalhados.taxa_expediente, 'BRL')}</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(converterParaUSD(resultados.total_servicos_detalhados.taxa_expediente), 'USD')}</TableCell>
+                    </TableRow>
+                  </>
+                )}
+                <TableRow className="border-t-2">
+                  <TableCell className="font-bold">TOTAL SERVIÇOS</TableCell>
+                  <TableCell className="text-right font-bold">
+                    {formatarMoeda(resultados.total_servicos, 'BRL')}
+                  </TableCell>
+                  <TableCell className="text-right font-bold">
+                    {formatarMoeda(converterParaUSD(resultados.total_servicos), 'USD')}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <Separator />
+      
       {/* Total Geral */}
       <div>
         <Card className="shadow-card">

@@ -45,7 +45,12 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
     armazenagem: 0,
     agenciamento: 0,
     taxas_locais_armador_usd: 0,
-    taxas_locais_armador_brl: 0
+    taxas_locais_armador_brl: 0,
+    // Serviços
+    honorarios: 0,
+    sdas: 0,
+    emissao_li: 0,
+    taxa_expediente: 0
   });
 
   const validarDados = () => {
@@ -431,6 +436,59 @@ export const FormularioImportacao = ({ onCalcular }: FormularioImportacaoProps) 
               id="taxas_locais_armador_brl"
               value={dados.taxas_locais_armador_brl}
               onChange={(valor) => atualizarCampo('taxas_locais_armador_brl', valor)}
+              placeholder="0"
+              prefix="R$ "
+            />
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Serviços */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Settings className="w-4 h-4 text-maritime-light" />
+          <h3 className="font-semibold">Serviços (BRL)</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="honorarios">Honorários</Label>
+            <InputMonetario
+              id="honorarios"
+              value={dados.honorarios}
+              onChange={(valor) => atualizarCampo('honorarios', valor)}
+              placeholder="0"
+              prefix="R$ "
+            />
+          </div>
+          <div>
+            <Label htmlFor="sdas">SDAS</Label>
+            <InputMonetario
+              id="sdas"
+              value={dados.sdas}
+              onChange={(valor) => atualizarCampo('sdas', valor)}
+              placeholder="0"
+              prefix="R$ "
+            />
+          </div>
+          <div>
+            <Label htmlFor="emissao_li">Emissão de LI</Label>
+            <InputMonetario
+              id="emissao_li"
+              value={dados.emissao_li}
+              onChange={(valor) => atualizarCampo('emissao_li', valor)}
+              placeholder="0"
+              prefix="R$ "
+            />
+          </div>
+          <div>
+            <Label htmlFor="taxa_expediente">Taxa de Expediente</Label>
+            <InputMonetario
+              id="taxa_expediente"
+              value={dados.taxa_expediente}
+              onChange={(valor) => atualizarCampo('taxa_expediente', valor)}
               placeholder="0"
               prefix="R$ "
             />
