@@ -33,13 +33,13 @@ export const InputMonetario = ({
     // Remove tudo exceto números, vírgula e ponto
     let cleanStr = str.replace(/[^\d,.-]/g, '');
     
-    // Se não tem vírgula nem ponto, é um número inteiro
-    if (!cleanStr.includes(',') && !cleanStr.includes('.')) {
-      return parseFloat(cleanStr) || 0;
+    // Se tem ponto e vírgula, assume formato brasileiro (ponto = milhar, vírgula = decimal)
+    if (cleanStr.includes('.') && cleanStr.includes(',')) {
+      // Remove pontos de milhar e substitui vírgula por ponto
+      cleanStr = cleanStr.replace(/\./g, '').replace(',', '.');
     }
-    
     // Se tem apenas vírgula, substitui por ponto (formato brasileiro)
-    if (cleanStr.includes(',') && !cleanStr.includes('.')) {
+    else if (cleanStr.includes(',')) {
       cleanStr = cleanStr.replace(',', '.');
     }
     
@@ -85,9 +85,13 @@ export const InputMonetario = ({
   
   const handleFocus = () => {
     setIsFocused(true);
-    // Quando focar, mostra o valor sem formatação para facilitar edição
+    // Quando focar, mostra o valor com formato brasileiro para facilitar edição
     if (value > 0) {
-      setDisplayValue(value.toString().replace('.', ','));
+      // Formata com todas as casas decimais necessárias
+      const valueStr = value.toFixed(decimals).replace('.', ',');
+      // Remove zeros desnecessários à direita
+      const cleanValue = valueStr.replace(/,?0+$/, '').replace(/,$/, '');
+      setDisplayValue(cleanValue || '0');
     } else {
       setDisplayValue("");
     }
