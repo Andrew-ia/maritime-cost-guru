@@ -188,11 +188,11 @@ export const ResultadosCalculos = ({ resultados, dados }: ResultadosCalculosProp
 
       <Separator />
 
-      {/* Despesas e Serviços */}
+      {/* Despesas */}
       <div>
         <div className="flex items-center gap-2 mb-4">
           <Calculator className="w-5 h-5 text-maritime-light" />
-          <h3 className="font-semibold">Despesas e Serviços</h3>
+          <h3 className="font-semibold">Despesas</h3>
         </div>
         <Card className="shadow-card">
           <CardContent className="pt-6">
@@ -205,16 +205,53 @@ export const ResultadosCalculos = ({ resultados, dados }: ResultadosCalculosProp
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">Total Despesas</TableCell>
-                  <TableCell className="text-right">{formatarMoeda(resultados.total_despesas, 'BRL')}</TableCell>
-                  <TableCell className="text-right">{formatarMoeda(converterParaUSD(resultados.total_despesas), 'USD')}</TableCell>
+                {resultados.total_despesas_detalhadas && (
+                  <>
+                    <TableRow>
+                      <TableCell className="font-medium">Armazenagem</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(resultados.total_despesas_detalhadas.armazenagem, 'BRL')}</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(converterParaUSD(resultados.total_despesas_detalhadas.armazenagem), 'USD')}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Agenciamento</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(resultados.total_despesas_detalhadas.agenciamento, 'BRL')}</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(converterParaUSD(resultados.total_despesas_detalhadas.agenciamento), 'USD')}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Taxas Locais de Frete Internacional (Armador) em Dólar</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(resultados.total_despesas_detalhadas.taxas_locais_armador_usd * dados.cotacao_usd, 'BRL')}</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(resultados.total_despesas_detalhadas.taxas_locais_armador_usd, 'USD')}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Taxas Locais de Frete Internacional (Armador) em Reais</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(resultados.total_despesas_detalhadas.taxas_locais_armador_brl, 'BRL')}</TableCell>
+                      <TableCell className="text-right">{formatarMoeda(converterParaUSD(resultados.total_despesas_detalhadas.taxas_locais_armador_brl), 'USD')}</TableCell>
+                    </TableRow>
+                  </>
+                )}
+                <TableRow className="border-t-2">
+                  <TableCell className="font-bold">TOTAL DESPESAS</TableCell>
+                  <TableCell className="text-right font-bold">
+                    {formatarMoeda(resultados.total_despesas, 'BRL')}
+                  </TableCell>
+                  <TableCell className="text-right font-bold">
+                    {formatarMoeda(converterParaUSD(resultados.total_despesas), 'USD')}
+                  </TableCell>
                 </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Total Serviços</TableCell>
-                  <TableCell className="text-right">{formatarMoeda(resultados.total_servicos, 'BRL')}</TableCell>
-                  <TableCell className="text-right">{formatarMoeda(converterParaUSD(resultados.total_servicos), 'USD')}</TableCell>
-                </TableRow>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <Separator />
+      
+      {/* Total Geral */}
+      <div>
+        <Card className="shadow-card">
+          <CardContent className="pt-6">
+            <Table>
+              <TableBody>
                 <TableRow className="border-t-2">
                   <TableCell className="font-bold">TOTAL CUSTO + IMPOSTOS</TableCell>
                   <TableCell className="text-right font-bold">

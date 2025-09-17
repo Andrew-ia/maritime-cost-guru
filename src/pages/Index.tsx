@@ -33,20 +33,11 @@ export interface DadosImportacao {
   taxa_siscomex: number;
   adicional_marinha: number;
   
-  // Despesas Locais (campos individuais)
+  // Despesas
   armazenagem: number;
-  desova: number;
-  lacre: number;
-  scanner: number;
-  mov_carga: number;
-  gerenciamento_risco: number;
-  desconsolidacao: number;
-  outras_despesas: number;
-  
-  honorarios: number;
-  sdas: number;
-  emissao_li: number;
-  taxa_expediente: number;
+  agenciamento: number;
+  taxas_locais_armador_usd: number;
+  taxas_locais_armador_brl: number;
 }
 
 export interface ResultadosCalculados {
@@ -60,7 +51,12 @@ export interface ResultadosCalculados {
   icms: number;
   total_impostos: number;
   total_despesas: number;
-  total_servicos: number;
+  total_despesas_detalhadas?: {
+    armazenagem: number;
+    agenciamento: number;
+    taxas_locais_armador_usd: number;
+    taxas_locais_armador_brl: number;
+  };
   total_custo_impostos: number;
   custo_final: number;
 }
@@ -135,13 +131,14 @@ const Index = () => {
     // 8. TOTAL IMPOSTOS
     const total_impostos = ii + ipi + pis + cofins + icms + dadosForm.taxa_siscomex + dadosForm.adicional_marinha;
     
-    // 9. TOTAL DESPESAS (campos individuais em BRL)
-    const total_despesas = dadosForm.armazenagem + dadosForm.desova + dadosForm.lacre + 
-                          dadosForm.scanner + dadosForm.mov_carga + dadosForm.gerenciamento_risco + 
-                          dadosForm.desconsolidacao + dadosForm.outras_despesas;
+    // 9. TOTAL DESPESAS (em BRL, convertendo USD para BRL)
+    const total_despesas = dadosForm.armazenagem + 
+                          dadosForm.agenciamento + 
+                          (dadosForm.taxas_locais_armador_usd * dadosForm.cotacao_usd) + 
+                          dadosForm.taxas_locais_armador_brl;
     
-    // 10. TOTAL SERVIÇOS
-    const total_servicos = dadosForm.honorarios + dadosForm.sdas + dadosForm.emissao_li + dadosForm.taxa_expediente;
+    // 10. TOTAL SERVIÇOS (removido - não faz parte das despesas)
+    const total_servicos = 0;
     
     // 11. TOTAL CUSTO IMPOSTOS
     const total_custo_impostos = total_impostos + total_despesas + total_servicos;
@@ -184,7 +181,12 @@ const Index = () => {
       icms,
       total_impostos,
       total_despesas,
-      total_servicos,
+      total_despesas_detalhadas: {
+        armazenagem: dadosForm.armazenagem,
+        agenciamento: dadosForm.agenciamento,
+        taxas_locais_armador_usd: dadosForm.taxas_locais_armador_usd,
+        taxas_locais_armador_brl: dadosForm.taxas_locais_armador_brl
+      },
       total_custo_impostos,
       custo_final
     };
@@ -249,7 +251,7 @@ const Index = () => {
                 </Button>
               </nav>
               
-              <ThemeToggle variant="ghost" className="text-white hover:bg-white/20" />
+              <ThemeToggle />
               <UserMenu />
             </div>
           </div>
